@@ -194,6 +194,15 @@
     animation:bubbleFade .3s ease-out;
   }
   @keyframes bubbleFade { from{opacity:0;transform:translateY(5px)} to{opacity:1;transform:translateY(0)} }
+  .whatif-panel {
+    background:rgba(255,255,255,.95); border-radius:16px; padding:16px; max-width:410px; width:100%;
+    box-shadow:0 4px 16px rgba(0,0,0,.1); text-align:left;
+  }
+  .whatif-panel h4 { font-size:15px; font-weight:800; color:#212121; margin-bottom:10px; text-align:center; }
+  .whatif-row { display:flex; align-items:center; gap:8px; margin-bottom:8px; }
+  .whatif-row label { font-size:12px; font-weight:700; color:#424242; width:70px; flex-shrink:0; }
+  .whatif-row input[type=range] { flex:1; }
+  .whatif-row .val { font-size:12px; font-weight:700; color:#757575; width:40px; text-align:right; }
 </style>
 </head>
 <body>
@@ -336,6 +345,13 @@
       <div class="body" id="principleBody"></div>
     </div>
     <div class="result-hint" id="resultHint"></div>
+    <div id="whatIfPanel" class="whatif-panel" style="display:none">
+      <h4>🔬 What If...?</h4>
+      <div class="whatif-row"><label>Gravity</label><input type="range" id="wifGravity" min="1" max="200" value="100" oninput="document.getElementById('wifGravVal').textContent=this.value+'%'"><span class="val" id="wifGravVal">100%</span></div>
+      <div class="whatif-row"><label>Weight</label><input type="range" id="wifWeight" min="25" max="300" value="100" oninput="document.getElementById('wifWeightVal').textContent=this.value+'%'"><span class="val" id="wifWeightVal">100%</span></div>
+      <div class="whatif-row"><label>Wind</label><input type="range" id="wifWind" min="0" max="200" value="0" oninput="document.getElementById('wifWindVal').textContent=this.value+'%'"><span class="val" id="wifWindVal">0%</span></div>
+      <button class="btn btn-sm btn-teal" onclick="runWhatIf()" style="width:100%;margin-top:4px">Re-Test with These Settings! 🧪</button>
+    </div>
     <div class="result-btns" id="resultBtns"></div>
     <button class="back-link" onclick="showScreen('levels')">Back to Levels</button>
   </div>
@@ -547,7 +563,7 @@ function startGame() {
   const anchorSet = new Set(l.anchors.map(([x,y])=>`${x},${y}`));
   gameNodes = []; gameBeams = []; selectedNode = null;
   isTesting = false; vehicle = null; weightObj = null;
-  failurePhase = null; failureData = null;
+  failurePhase = null; failureData = null; whatIfOverrides = null;
   circuitParticles = []; circuitReached = new Set();
 
   // Set default material
@@ -1046,9 +1062,12 @@ function stepPhysics(speedMult) {
     const vx=(n.x-n.px)*DAMPING*sm;
     const vy=(n.y-n.py)*DAMPING*sm;
     n.px=n.x; n.py=n.y;
-    n.x+=vx; n.y+=vy+GRAVITY*sm;
+    const gMult = whatIfOverrides ? whatIfOverrides.gravMult : 1;
+    n.x+=vx; n.y+=vy+GRAVITY*sm*gMult;
     // Wind
-    if (l.windForce && isTesting) n.x += l.windForce*sm;
+    const windBase = l.windForce || 0;
+    const windExtra = whatIfOverrides ? whatIfOverrides.windPct * 0.3 : 0;
+    if ((windBase || windExtra) && isTesting) n.x += (windBase + windExtra)*sm;
   }
   // Vehicle force
   if (vehicle && vehicle.active && vehicle.moving) {
@@ -1058,7 +1077,8 @@ function stepPhysics(speedMult) {
         const a=roadNodes[i], b=roadNodes[i+1];
         if (vehicle.x>=a.x && vehicle.x<=b.x) {
           const t=(vehicle.x-a.x)/(b.x-a.x||1);
-          const force=l.vehicleWeight*GRAVITY*3*sm;
+          const wMult = whatIfOverrides ? whatIfOverrides.weightMult : 1;
+          const force=l.vehicleWeight*wMult*GRAVITY*3*sm;
           if (!a.fixed) a.y+=force*(1-t)*0.5;
           if (!b.fixed) b.y+=force*t*0.5;
           vehicle.y=a.y+(b.y-a.y)*t;
@@ -1072,7 +1092,8 @@ function stepPhysics(speedMult) {
     const topNodes = physicsNodes.filter(n=>!n.fixed).sort((a,b)=>a.y-b.y);
     const targetNodes = topNodes.slice(0, Math.max(2, Math.floor(topNodes.length*0.2)));
     for (const n of targetNodes) {
-      n.y += (l.testWeight||3)*GRAVITY*0.5*sm / targetNodes.length;
+      const wMult2 = whatIfOverrides ? whatIfOverrides.weightMult : 1;
+      n.y += (l.testWeight||3)*wMult2*GRAVITY*0.5*sm / targetNodes.length;
     }
     // Update weight position to sit on top
     if (targetNodes.length>0) {
@@ -1476,6 +1497,20 @@ function showResult(success, stars) {
   retry.onclick = () => startGame();
   btns.appendChild(retry);
 
+  // What-If panel
+  const wifPanel = document.getElementById('whatIfPanel');
+  if (success && w.testType !== 'circuit') {
+    wifPanel.style.display = 'block';
+    document.getElementById('wifGravity').value = 100;
+    document.getElementById('wifWeight').value = 100;
+    document.getElementById('wifWind').value = 0;
+    document.getElementById('wifGravVal').textContent = '100%';
+    document.getElementById('wifWeightVal').textContent = '100%';
+    document.getElementById('wifWindVal').textContent = '0%';
+  } else {
+    wifPanel.style.display = 'none';
+  }
+
   if (success && currentLevel < w.levels.length-1) {
     const next = document.createElement('button');
     next.className = 'btn btn-md btn-green';
@@ -1507,6 +1542,25 @@ function showResult(success, stars) {
   }
 
   showScreen('result');
+}
+
+// ── WHAT-IF MODE ──
+let whatIfOverrides = null;
+
+function runWhatIf() {
+  const gravMult = parseInt(document.getElementById('wifGravity').value) / 100;
+  const weightMult = parseInt(document.getElementById('wifWeight').value) / 100;
+  const windPct = parseInt(document.getElementById('wifWind').value) / 100;
+  whatIfOverrides = { gravMult, weightMult, windPct };
+  // Restart the game with same beams but modified physics
+  showScreen('game');
+  initCanvas();
+  updateMaterialBtns();
+  updateGameUI();
+  document.getElementById('helpOverlay').style.display = 'none';
+  helpVisible = false;
+  // Immediately start test with overrides
+  startTest();
 }
 
 // ── REAL-WORLD GALLERY ──
