@@ -173,6 +173,15 @@
   .badge-emoji { font-size:36px; margin-bottom:4px; }
   .badge-name { font-size:12px; font-weight:700; color:#212121; }
   .badge-desc { font-size:10px; color:#757575; margin-top:2px; }
+  .buddy-wrap { position:absolute; bottom:8px; left:8px; display:flex; align-items:flex-end; gap:6px; z-index:15; pointer-events:none; transition:opacity .3s; }
+  .buddy-char { font-size:36px; filter:drop-shadow(0 2px 4px rgba(0,0,0,.3)); animation:buddyBounce 2s ease-in-out infinite; }
+  @keyframes buddyBounce { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-4px)} }
+  .buddy-bubble {
+    background:rgba(255,255,255,.95); border-radius:12px 12px 12px 4px; padding:6px 10px;
+    font-size:11px; font-weight:600; color:#212121; max-width:180px; box-shadow:0 2px 8px rgba(0,0,0,.12);
+    animation:bubbleFade .3s ease-out;
+  }
+  @keyframes bubbleFade { from{opacity:0;transform:translateY(5px)} to{opacity:1;transform:translateY(0)} }
 </style>
 </head>
 <body>
@@ -254,6 +263,10 @@
           </p>
           <button class="btn btn-md btn-orange" onclick="toggleHelp()">Got it!</button>
         </div>
+      </div>
+      <div class="buddy-wrap" id="buddyWrap">
+        <div class="buddy-char">👷</div>
+        <div class="buddy-bubble" id="buddyBubble">Let's build something awesome!</div>
       </div>
       <div class="failure-overlay" id="failureOverlay">
         <div class="failure-box">
@@ -568,6 +581,7 @@ function startGame() {
   else if (w.testType === 'weight') testBtn.innerHTML = 'TEST IT! ⬇️';
   else testBtn.innerHTML = 'TEST IT! 🚛';
 
+  buddy.startTips();
   drawGame();
 }
 
@@ -624,7 +638,7 @@ function clearBeams() { gameBeams=[]; selectedNode=null; updateGameUI(); drawGam
 function exitGame() {
   isTesting=false; failurePhase=null;
   if (animId) cancelAnimationFrame(animId);
-  vehicle=null; weightObj=null;
+  vehicle=null; weightObj=null; buddy.stop();
   showScreen('levels');
 }
 
@@ -1057,7 +1071,7 @@ function stepPhysics(speedMult) {
     if (b.broken) continue;
     const w2 = getWorld();
     const mat = w2.materials[b.material];
-    if (b.stress > mat.maxStress*BREAK_MULT) { b.broken=true; sfx.play('breakBeam'); }
+    if (b.stress > mat.maxStress*BREAK_MULT) { b.broken=true; sfx.play('breakBeam'); buddy.say('break'); }
   }
   return physicsNodes.some(n=>!n.fixed&&n.y>800);
 }
@@ -1147,6 +1161,7 @@ function continueAfterFailure() {
 function startTest() {
   if (gameBeams.length===0) return;
   const w = getWorld();
+  buddy.say('testing'); buddy.stop();
   if (w.testType==='circuit') { startCircuitTest(); return; }
 
   const l = getLevel();
@@ -1454,6 +1469,43 @@ function showResult(success, stars) {
 
   showScreen('result');
 }
+
+// ── CONSTRUCTION BUDDY ──
+const buddy = {
+  timer: null,
+  messages: {
+    start: ["Let's build something awesome!", "Ready to engineer?", "I believe in you!", "Time to construct!"],
+    fewBeams: ["Good start! Keep connecting dots!", "Nice! Try adding more beams.", "You're getting the hang of it!"],
+    triangles: ["Try adding diagonal beams for triangles!", "Triangles are super strong!", "A diagonal here would help!"],
+    manyBeams: ["Looking solid! Ready to test?", "Great structure! Let's see if it holds!", "That's some fine engineering!"],
+    testing: ["Here we go... 🤞", "Fingers crossed!", "Let's see how it holds!"],
+    break: ["Oops! That beam snapped!", "Don't worry, we can fix this!", "Try reinforcing that spot!"],
+    circuit: ["Connect the battery to all bulbs!", "Electricity needs a path!", "Wire it up! ⚡"]
+  },
+  say(category) {
+    const msgs = this.messages[category];
+    if (!msgs) return;
+    const msg = msgs[Math.floor(Math.random() * msgs.length)];
+    const bubble = document.getElementById('buddyBubble');
+    if (bubble) { bubble.textContent = msg; bubble.style.animation = 'none'; bubble.offsetHeight; bubble.style.animation = 'bubbleFade .3s ease-out'; }
+  },
+  autoTip() {
+    if (isTesting) return;
+    const w = getWorld();
+    const beamCount = gameBeams.length;
+    if (beamCount === 0) this.say('start');
+    else if (w.testType === 'circuit') this.say('circuit');
+    else if (beamCount < 3) this.say('fewBeams');
+    else if (beamCount < 6) this.say('triangles');
+    else this.say('manyBeams');
+  },
+  startTips() {
+    this.say('start');
+    if (this.timer) clearInterval(this.timer);
+    this.timer = setInterval(() => this.autoTip(), 12000);
+  },
+  stop() { if (this.timer) { clearInterval(this.timer); this.timer = null; } }
+};
 
 // ── BUILDER BADGES ──
 const BADGES = [
