@@ -695,6 +695,7 @@ function exitGame() {
   if (animId) cancelAnimationFrame(animId);
   vehicle=null; weightObj=null; buddy.stop();
   window._isDailyChallenge = false; window._dailyLevel = null;
+  h2hState = null; coopState = null; hidePlayerBanner();
   showScreen('levels');
 }
 
@@ -727,6 +728,7 @@ function exitGame() {
             const dx=closest.x-selectedNode.x, dy=closest.y-selectedNode.y;
             gameBeams.push({ a:selectedNode, b:closest, material, restLength:Math.sqrt(dx*dx+dy*dy), stress:0, broken:false });
             sfx.play('place');
+            if (coopState) coopAfterBeamPlaced();
           }
         }
         selectedNode=null;
@@ -1586,6 +1588,35 @@ function showResult(success, stars) {
   }
 
   showScreen('result');
+}
+
+// ── CO-OP BUILD MODE ──
+let coopState = null; // { turn:1|2, beamsP1:0, beamsP2:0 }
+
+function startCoOp() {
+  // Pick a random level
+  const worldIdx = Math.floor(Math.random() * 3);
+  const levelIdx = Math.floor(Math.random() * Math.min(3, WORLD_DATA[worldIdx].levels.length));
+  currentWorld = worldIdx;
+  currentLevel = levelIdx;
+  coopState = { turn: 1, beamsP1: 0, beamsP2: 0 };
+  window._isDailyChallenge = false; window._dailyLevel = null;
+  h2hState = null;
+  showPlayerBanner('👷 Player 1 — Place a beam!', 'p1');
+  startGame();
+}
+
+function coopAfterBeamPlaced() {
+  if (!coopState) return;
+  if (coopState.turn === 1) {
+    coopState.beamsP1++;
+    coopState.turn = 2;
+    showPlayerBanner(`🎀 Player 2 — Your turn! (P1: ${coopState.beamsP1} | P2: ${coopState.beamsP2})`, 'p2');
+  } else {
+    coopState.beamsP2++;
+    coopState.turn = 1;
+    showPlayerBanner(`👷 Player 1 — Your turn! (P1: ${coopState.beamsP1} | P2: ${coopState.beamsP2})`, 'p1');
+  }
 }
 
 // ── HEAD-TO-HEAD MODE ──
