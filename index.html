@@ -1518,6 +1518,14 @@ function showResult(success, stars) {
     next.onclick = () => { currentLevel++; showIntro(currentLevel); };
     btns.appendChild(next);
   }
+  if (success) {
+    const shareBtn = document.createElement('button');
+    shareBtn.className = 'btn btn-md btn-pink';
+    shareBtn.textContent = '📸 Share Design';
+    shareBtn.onclick = () => shareDesign();
+    btns.appendChild(shareBtn);
+  }
+
   if (success && currentLevel === w.levels.length-1) {
     const done = document.createElement('button');
     done.className = 'btn btn-md btn-purple';
@@ -1542,6 +1550,43 @@ function showResult(success, stars) {
   }
 
   showScreen('result');
+}
+
+// ── SHARE DESIGN ──
+function shareDesign() {
+  if (!canvas) return;
+  // Draw a title on a temporary canvas
+  const share = document.createElement('canvas');
+  share.width = canvas.width;
+  share.height = canvas.height + 60;
+  const sctx = share.getContext('2d');
+  // Header
+  sctx.fillStyle = '#1a237e';
+  sctx.fillRect(0, 0, share.width, 60);
+  sctx.fillStyle = '#fff';
+  sctx.font = 'bold 22px sans-serif';
+  sctx.textAlign = 'center';
+  sctx.textBaseline = 'middle';
+  const l = getLevel();
+  sctx.fillText(`🏗️ Build Lab — ${l.name}`, share.width / 2, 30);
+  // Game canvas
+  sctx.drawImage(canvas, 0, 60);
+  // Convert and share/download
+  share.toBlob(blob => {
+    if (!blob) return;
+    const file = new File([blob], 'my-build.png', { type: 'image/png' });
+    if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
+      navigator.share({ title: 'My Build Lab Design', text: `Check out my ${l.name} design!`, files: [file] }).catch(() => {});
+    } else {
+      // Fallback: download
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url; a.download = 'my-build.png';
+      document.body.appendChild(a); a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    }
+  }, 'image/png');
 }
 
 // ── WHAT-IF MODE ──
