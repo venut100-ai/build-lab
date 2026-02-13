@@ -197,6 +197,7 @@
     <div class="star-count" id="menuStars" style="display:none">★ <span id="menuStarNum">0</span> Stars</div>
     <button class="btn btn-lg btn-orange" onclick="showScreen('worlds')" style="z-index:1;margin-top:8px;">START BUILDING</button>
     <button class="btn btn-md btn-purple" onclick="showScreen('badges')" style="z-index:1">🏆 Badges</button>
+    <button class="btn btn-md btn-teal" onclick="startDailyChallenge()" style="z-index:1">📅 Daily Challenge</button>
     <div class="age-note">Built for curious minds ages 8+</div>
     <button class="btn btn-sm btn-gray" onclick="sfx.muted=!sfx.muted;this.textContent=sfx.muted?'🔇 Sound Off':'🔊 Sound On'" style="z-index:1;margin-top:4px">🔊 Sound On</button>
   </div>
@@ -427,7 +428,10 @@ function getWorldStars(wi) {
   return t;
 }
 function starsHTML(c,sz) { sz=sz||28; let h=''; for(let i=0;i<3;i++) h+=`<span class="star ${i<c?'on':'off'}" style="font-size:${sz}px">★</span>`; return h; }
-function getLevel() { return WORLD_DATA[currentWorld].levels[currentLevel]; }
+function getLevel() {
+  if (window._isDailyChallenge && window._dailyLevel) return window._dailyLevel;
+  return WORLD_DATA[currentWorld].levels[currentLevel];
+}
 function getWorld() { return WORLD_DATA[currentWorld]; }
 
 // ── SCREENS ──
@@ -639,6 +643,7 @@ function exitGame() {
   isTesting=false; failurePhase=null;
   if (animId) cancelAnimationFrame(animId);
   vehicle=null; weightObj=null; buddy.stop();
+  window._isDailyChallenge = false; window._dailyLevel = null;
   showScreen('levels');
 }
 
@@ -1468,6 +1473,56 @@ function showResult(success, stars) {
   }
 
   showScreen('result');
+}
+
+// ── DAILY CHALLENGE ──
+function seededRandom(seed) {
+  let s = seed;
+  return function() { s = (s * 16807 + 0) % 2147483647; return (s - 1) / 2147483646; };
+}
+
+function getDailySeed() {
+  const d = new Date();
+  return d.getFullYear() * 10000 + (d.getMonth()+1) * 100 + d.getDate();
+}
+
+function startDailyChallenge() {
+  const seed = getDailySeed();
+  const rng = seededRandom(seed);
+  const worldIdx = Math.floor(rng() * 3); // bridges, towers, arches (not circuits for daily)
+  const w = WORLD_DATA[worldIdx];
+
+  // Pick a random existing level as template and modify it
+  const templateIdx = Math.floor(rng() * w.levels.length);
+  const template = w.levels[templateIdx];
+
+  // Create modified daily level
+  const dailyLevel = JSON.parse(JSON.stringify(template));
+  dailyLevel.name = "Daily Challenge";
+  dailyLevel.subtitle = new Date().toLocaleDateString('en-US', {month:'short', day:'numeric'});
+  dailyLevel.emoji = "📅";
+  dailyLevel.description = `Today's challenge: a ${w.name.toLowerCase()} puzzle! Can you beat it?`;
+  dailyLevel.tip = template.tip;
+  dailyLevel.fact = template.fact;
+
+  // Modify difficulty slightly using seed
+  if (dailyLevel.vehicleWeight) dailyLevel.vehicleWeight = +(dailyLevel.vehicleWeight * (0.8 + rng() * 0.6)).toFixed(1);
+  if (dailyLevel.testWeight) dailyLevel.testWeight = +(dailyLevel.testWeight * (0.8 + rng() * 0.6)).toFixed(1);
+  dailyLevel.par = Math.max(5, dailyLevel.par + Math.floor(rng() * 5 - 2));
+
+  // Set as current level
+  currentWorld = worldIdx;
+  // Temporarily inject daily level
+  const origLevels = w.levels;
+  w.levels = [dailyLevel];
+  currentLevel = 0;
+  showIntro(0);
+  // Restore after intro is shown
+  setTimeout(() => { w.levels = origLevels; }, 100);
+  // Override startGame to use daily level
+  window._dailyLevel = dailyLevel;
+  window._dailyWorld = worldIdx;
+  window._isDailyChallenge = true;
 }
 
 // ── CONSTRUCTION BUDDY ──
