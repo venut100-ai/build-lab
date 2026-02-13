@@ -177,6 +177,7 @@
     <div class="star-count" id="menuStars" style="display:none">★ <span id="menuStarNum">0</span> Stars</div>
     <button class="btn btn-lg btn-orange" onclick="showScreen('worlds')" style="z-index:1;margin-top:8px;">START BUILDING</button>
     <div class="age-note">Built for curious minds ages 8+</div>
+    <button class="btn btn-sm btn-gray" onclick="sfx.muted=!sfx.muted;this.textContent=sfx.muted?'🔇 Sound Off':'🔊 Sound On'" style="z-index:1;margin-top:4px">🔊 Sound On</button>
   </div>
 
   <!-- WORLDS -->
@@ -631,6 +632,7 @@ function exitGame() {
           if (gdx<=2 && gdy<=2 && !(gdx===0&&gdy===0)) {
             const dx=closest.x-selectedNode.x, dy=closest.y-selectedNode.y;
             gameBeams.push({ a:selectedNode, b:closest, material, restLength:Math.sqrt(dx*dx+dy*dy), stress:0, broken:false });
+            sfx.play('place');
           }
         }
         selectedNode=null;
@@ -657,7 +659,7 @@ function removeBeamAt(pt) {
     const d=Math.hypot(pt.x-(b.a.x+t*dx), pt.y-(b.a.y+t*dy));
     if (d<cd) { cd=d; ci=i; }
   });
-  if (ci>=0) { gameBeams.splice(ci,1); updateGameUI(); drawGame(); }
+  if (ci>=0) { gameBeams.splice(ci,1); sfx.play('remove'); updateGameUI(); drawGame(); }
 }
 
 // ── DRAWING ──
@@ -1031,7 +1033,7 @@ function stepPhysics(speedMult) {
     if (b.broken) continue;
     const w2 = getWorld();
     const mat = w2.materials[b.material];
-    if (b.stress > mat.maxStress*BREAK_MULT) b.broken=true;
+    if (b.stress > mat.maxStress*BREAK_MULT) { b.broken=true; sfx.play('breakBeam'); }
   }
   return physicsNodes.some(n=>!n.fixed&&n.y>800);
 }
@@ -1368,6 +1370,7 @@ function showResult(success, stars) {
   const successTitles = { bridges:'BRIDGE HELD!', towers:'TOWER STOOD!', arches:'ARCH HELD!', circuits:'CIRCUIT WORKS!' };
   const failTitles = { bridges:'BRIDGE COLLAPSED!', towers:'TOWER FELL!', arches:'ARCH CRUMBLED!', circuits:'NO POWER!' };
 
+  sfx.play(success ? 'success' : 'fail');
   document.getElementById('resultEmoji').textContent = success?successEmojis[w.id]:'💥';
   const title = document.getElementById('resultTitle');
   title.textContent = success?(successTitles[w.id]||'SUCCESS!'):(failTitles[w.id]||'FAILED!');
@@ -1418,6 +1421,86 @@ function showResult(success, stars) {
 
   showScreen('result');
 }
+
+// ── SOUND ENGINE (Web Audio API) ──
+const sfx = {
+  ctx: null, unlocked: false, muted: false,
+  init() {
+    if (this.ctx) return;
+    this.ctx = new (window.AudioContext || window.webkitAudioContext)();
+    if (this.ctx.state === 'suspended') this.ctx.resume();
+    this.unlocked = true;
+  },
+  unlock() {
+    if (this.unlocked) return;
+    this.init();
+  },
+  play(type) {
+    if (this.muted || !this.ctx) return;
+    try { this[type](); } catch(e) {}
+  },
+  place() {
+    const o = this.ctx.createOscillator(), g = this.ctx.createGain();
+    o.connect(g); g.connect(this.ctx.destination);
+    o.type = 'sine'; o.frequency.setValueAtTime(440, this.ctx.currentTime);
+    o.frequency.exponentialRampToValueAtTime(880, this.ctx.currentTime + 0.08);
+    g.gain.setValueAtTime(0.15, this.ctx.currentTime);
+    g.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.15);
+    o.start(); o.stop(this.ctx.currentTime + 0.15);
+  },
+  remove() {
+    const o = this.ctx.createOscillator(), g = this.ctx.createGain();
+    o.connect(g); g.connect(this.ctx.destination);
+    o.type = 'sine'; o.frequency.setValueAtTime(600, this.ctx.currentTime);
+    o.frequency.exponentialRampToValueAtTime(300, this.ctx.currentTime + 0.1);
+    g.gain.setValueAtTime(0.12, this.ctx.currentTime);
+    g.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.12);
+    o.start(); o.stop(this.ctx.currentTime + 0.12);
+  },
+  breakBeam() {
+    const buf = this.ctx.createBuffer(1, this.ctx.sampleRate * 0.3, this.ctx.sampleRate);
+    const d = buf.getChannelData(0);
+    for (let i = 0; i < d.length; i++) d[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / d.length, 2);
+    const s = this.ctx.createBufferSource(), g = this.ctx.createGain();
+    s.buffer = buf; s.connect(g); g.connect(this.ctx.destination);
+    g.gain.setValueAtTime(0.2, this.ctx.currentTime);
+    g.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.3);
+    s.start();
+  },
+  success() {
+    const notes = [523, 659, 784, 1047];
+    notes.forEach((freq, i) => {
+      const o = this.ctx.createOscillator(), g = this.ctx.createGain();
+      o.connect(g); g.connect(this.ctx.destination);
+      o.type = 'sine'; o.frequency.value = freq;
+      const t = this.ctx.currentTime + i * 0.15;
+      g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(0.15, t + 0.02);
+      g.gain.exponentialRampToValueAtTime(0.001, t + 0.4);
+      o.start(t); o.stop(t + 0.4);
+    });
+  },
+  fail() {
+    const o = this.ctx.createOscillator(), g = this.ctx.createGain();
+    o.connect(g); g.connect(this.ctx.destination);
+    o.type = 'sawtooth'; o.frequency.setValueAtTime(200, this.ctx.currentTime);
+    o.frequency.exponentialRampToValueAtTime(80, this.ctx.currentTime + 0.5);
+    g.gain.setValueAtTime(0.12, this.ctx.currentTime);
+    g.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.5);
+    o.start(); o.stop(this.ctx.currentTime + 0.5);
+  },
+  badge() {
+    const notes = [784, 988, 1175, 1319, 1568];
+    notes.forEach((freq, i) => {
+      const o = this.ctx.createOscillator(), g = this.ctx.createGain();
+      o.connect(g); g.connect(this.ctx.destination);
+      o.type = 'triangle'; o.frequency.value = freq;
+      const t = this.ctx.currentTime + i * 0.1;
+      g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(0.12, t + 0.02);
+      g.gain.exponentialRampToValueAtTime(0.001, t + 0.3);
+      o.start(t); o.stop(t + 0.3);
+    });
+  }
+};
 
 // ── CONFETTI CELEBRATION ──
 const confetti = {
@@ -1521,7 +1604,8 @@ document.addEventListener('DOMContentLoaded', () => {
   setupMenuBG();
   updateMenuStars();
   confetti.init();
-  document.addEventListener('touchstart', e => { if(e.touches.length>1)e.preventDefault(); },{passive:false});
+  document.addEventListener('touchstart', e => { sfx.unlock(); if(e.touches.length>1)e.preventDefault(); },{passive:false});
+  document.addEventListener('mousedown', () => sfx.unlock(), {once:true});
   let lastTouch=0;
   document.addEventListener('touchend', e => { const now=Date.now(); if(now-lastTouch<=300)e.preventDefault(); lastTouch=now; },false);
 });
