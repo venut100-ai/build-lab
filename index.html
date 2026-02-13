@@ -1,0 +1,952 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Build Lab">
+<title>Build Lab — Engineering Adventure</title>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+  html, body { width:100%; height:100%; overflow:hidden; font-family:'Segoe UI',system-ui,-apple-system,sans-serif; background:#1a237e; }
+  body { display:flex; justify-content:center; align-items:center; }
+  #app { width:100%; max-width:960px; height:100vh; position:relative; overflow:hidden; }
+
+  /* ── SHARED ── */
+  .screen { position:absolute; inset:0; display:none; flex-direction:column; overflow-y:auto; -webkit-overflow-scrolling:touch; }
+  .screen.active { display:flex; }
+  .btn {
+    border:none; border-radius:16px; font-weight:700; cursor:pointer; letter-spacing:.5px;
+    transition:transform .15s,box-shadow .15s; font-family:inherit; text-align:center;
+  }
+  .btn:active { transform:scale(.96); }
+  .btn-lg { padding:18px 50px; font-size:22px; border-radius:25px; }
+  .btn-md { padding:12px 28px; font-size:17px; }
+  .btn-sm { padding:8px 16px; font-size:13px; border-radius:11px; }
+  .btn-orange { background:linear-gradient(135deg,#FF9800,#F57C00); color:#fff; box-shadow:0 4px 15px #FF980066; }
+  .btn-blue { background:linear-gradient(135deg,#2196F3,#1565C0); color:#fff; box-shadow:0 4px 15px #2196F366; }
+  .btn-green { background:linear-gradient(135deg,#4CAF50,#2E7D32); color:#fff; box-shadow:0 4px 15px #4CAF5066; }
+  .btn-red { background:linear-gradient(135deg,#F44336,#C62828); color:#fff; box-shadow:0 4px 15px #F4433666; }
+  .btn-gray { background:linear-gradient(135deg,#78909C,#546E7A); color:#fff; box-shadow:0 4px 10px #78909C44; }
+  .btn-purple { background:linear-gradient(135deg,#7C4DFF,#651FFF); color:#fff; box-shadow:0 4px 10px #7C4DFF44; }
+  .stars { display:flex; gap:4px; }
+  .star { font-size:28px; transition:transform .3s; }
+  .star.on { color:#FFD700; text-shadow:0 2px 8px rgba(255,215,0,.5); transform:scale(1.1); }
+  .star.off { color:#E0E0E0; transform:scale(.9); }
+
+  /* ── MENU ── */
+  #menu { background:linear-gradient(135deg,#1a237e,#283593,#3949ab); align-items:center; justify-content:center; gap:24px; padding:40px; text-align:center; }
+  #menu .bg-icons { position:absolute; inset:0; pointer-events:none; overflow:hidden; }
+  #menu .bg-icon { position:absolute; opacity:.12; }
+  #menu h1 { font-size:min(13vw,56px); font-weight:900; color:#fff; text-shadow:0 4px 20px rgba(0,0,0,.3); letter-spacing:3px; z-index:1; }
+  #menu .subtitle { font-size:20px; color:#B3E5FC; font-weight:500; z-index:1; }
+  #menu .star-count { color:#FFD700; font-size:20px; font-weight:700; z-index:1; }
+  #menu .age-note { color:#7986CB; font-size:14px; margin-top:10px; z-index:1; }
+
+  /* ── WORLDS ── */
+  #worlds { background:linear-gradient(135deg,#E0F4FF,#E8F5E9); padding:24px; gap:20px; }
+  .worlds-grid { display:grid; grid-template-columns:1fr 1fr; gap:16px; max-width:560px; margin:0 auto; width:100%; }
+  .world-card {
+    padding:22px 16px; border-radius:20px; border:none; text-align:center; cursor:pointer;
+    transition:transform .15s; position:relative; font-family:inherit; color:#fff;
+  }
+  .world-card:active { transform:scale(.97); }
+  .world-card.locked { opacity:.65; cursor:default; }
+  .world-card .emoji { font-size:44px; margin-bottom:6px; }
+  .world-card .wname { font-size:19px; font-weight:800; margin-bottom:2px; }
+  .world-card .wdesc { font-size:12px; opacity:.85; margin-bottom:8px; }
+  .world-card .lock { position:absolute; top:10px; right:12px; font-size:18px; }
+  .world-card .soon { font-size:11px; color:rgba(255,255,255,.7); font-weight:600; }
+
+  /* ── LEVELS ── */
+  #levels { background:linear-gradient(135deg,#E0F4FF,#E8F5E9); padding:24px; gap:14px; }
+  .level-btn {
+    display:flex; align-items:center; gap:14px; padding:14px 18px; border-radius:16px;
+    border:none; background:#fff; cursor:pointer; text-align:left; font-family:inherit;
+    box-shadow:0 3px 12px rgba(0,0,0,.07); transition:transform .15s; width:100%;
+  }
+  .level-btn:active { transform:scale(.98); }
+  .level-btn.locked { opacity:.55; cursor:default; }
+  .level-num {
+    width:46px; height:46px; border-radius:13px; display:flex; align-items:center; justify-content:center;
+    font-size:20px; font-weight:900; color:#fff; flex-shrink:0;
+  }
+  .level-info { flex:1; }
+  .level-name { font-size:16px; font-weight:700; color:#212121; }
+  .level-sub { font-size:12px; color:#757575; }
+
+  /* ── INTRO ── */
+  #intro { background:linear-gradient(135deg,#E3F2FD,#E0F4FF); align-items:center; justify-content:center; padding:36px; gap:18px; text-align:center; }
+  .intro-emoji { font-size:60px; }
+  .intro-title { font-size:min(8vw,32px); font-weight:800; color:#212121; }
+  .intro-desc { font-size:16px; color:#757575; max-width:440px; line-height:1.5; }
+  .tip-card, .fact-card { border-radius:16px; padding:16px 22px; max-width:440px; width:100%; text-align:left; }
+  .tip-card { background:#FFF3E0; border:2px solid #FFE0B2; }
+  .tip-card .label { font-size:13px; font-weight:700; color:#FF9800; margin-bottom:5px; }
+  .tip-card .body { font-size:14px; color:#E65100; line-height:1.5; }
+  .fact-card { background:#E3F2FD; border:2px solid #BBDEFB; }
+  .fact-card .label { font-size:13px; font-weight:700; color:#2196F3; margin-bottom:5px; }
+  .fact-card .body { font-size:14px; color:#1565C0; line-height:1.5; }
+
+  /* ── GAME ── */
+  #game { background:linear-gradient(135deg,#E0F4FF,#E8F5E9); padding:10px; gap:8px; }
+  .game-topbar {
+    display:flex; align-items:center; justify-content:space-between; padding:8px 12px;
+    background:rgba(255,255,255,.92); border-radius:14px; box-shadow:0 2px 8px rgba(0,0,0,.06);
+  }
+  .game-topbar .title { font-size:15px; font-weight:800; color:#212121; }
+  .game-topbar .meta { font-size:11px; color:#757575; }
+  .canvas-wrap {
+    display:flex; justify-content:center; border-radius:16px; overflow:hidden;
+    box-shadow:0 4px 20px rgba(0,0,0,.1); flex:1; min-height:0; position:relative;
+  }
+  .canvas-wrap canvas { width:100%; height:100%; touch-action:none; cursor:pointer; display:block; }
+  .game-bottombar {
+    display:flex; align-items:center; justify-content:space-between; padding:10px 12px;
+    background:rgba(255,255,255,.95); border-radius:16px; box-shadow:0 -2px 10px rgba(0,0,0,.06);
+  }
+  .mat-btn {
+    padding:8px 14px; border-radius:11px; border:3px solid transparent;
+    cursor:pointer; display:flex; align-items:center; gap:5px;
+    font-size:13px; font-weight:700; color:#212121; background:#F5F5F5; font-family:inherit;
+  }
+  .mat-btn.active { border-color:#2196F3; background:#E3F2FD; }
+  .progress-bar { height:8px; border-radius:4px; background:#E0E0E0; overflow:hidden; margin-top:6px; }
+  .progress-fill { height:100%; border-radius:4px; background:linear-gradient(90deg,#4CAF50,#2196F3); transition:width .1s; }
+
+  /* ── HELP OVERLAY ── */
+  .help-overlay {
+    position:absolute; inset:0; background:rgba(0,0,0,.6); display:flex;
+    align-items:center; justify-content:center; z-index:20;
+  }
+  .help-box {
+    background:rgba(0,0,0,.88); color:#fff; border-radius:20px; padding:24px 30px;
+    max-width:310px; text-align:center; box-shadow:0 8px 30px rgba(0,0,0,.3);
+  }
+  .help-box .hicon { font-size:36px; margin-bottom:8px; }
+  .help-box h3 { font-size:18px; font-weight:700; margin-bottom:10px; }
+  .help-box p { font-size:14px; line-height:1.7; margin-bottom:12px; }
+
+  /* ── RESULT ── */
+  #result { align-items:center; justify-content:center; padding:40px; gap:18px; text-align:center; }
+  #result.success { background:linear-gradient(135deg,#E8F5E9,#C8E6C9); }
+  #result.fail { background:linear-gradient(135deg,#FFEBEE,#FFCDD2); }
+  .result-emoji { font-size:72px; }
+  .result-title { font-size:min(9vw,36px); font-weight:900; }
+  .result-title.win { color:#4CAF50; }
+  .result-title.lose { color:#F44336; }
+  .principle-card { background:rgba(255,255,255,.8); border-radius:16px; padding:16px 22px; max-width:410px; }
+  .principle-card .label { font-size:13px; font-weight:700; color:#2196F3; margin-bottom:5px; }
+  .principle-card .body { font-size:15px; color:#212121; line-height:1.5; }
+  .result-hint { font-size:15px; color:#757575; max-width:340px; line-height:1.5; }
+  .result-btns { display:flex; gap:12px; margin-top:8px; flex-wrap:wrap; justify-content:center; }
+  .back-link { background:none; border:none; color:#757575; font-size:14px; cursor:pointer; margin-top:6px; font-family:inherit; }
+</style>
+</head>
+<body>
+<div id="app">
+
+  <!-- ══════════ MENU ══════════ -->
+  <div id="menu" class="screen active">
+    <div class="bg-icons" id="bgIcons"></div>
+    <div style="font-size:min(18vw,72px);z-index:1">🏗️</div>
+    <h1>BUILD LAB</h1>
+    <div class="subtitle">Design. Build. Engineer!</div>
+    <div class="star-count" id="menuStars" style="display:none">★ <span id="menuStarNum">0</span> / 15 Stars</div>
+    <button class="btn btn-lg btn-orange" onclick="showScreen('worlds')" style="z-index:1;margin-top:8px;">START BUILDING</button>
+    <div class="age-note">Built for curious minds ages 8+</div>
+  </div>
+
+  <!-- ══════════ WORLDS ══════════ -->
+  <div id="worlds" class="screen">
+    <div style="display:flex;align-items:center;justify-content:space-between">
+      <button class="btn btn-sm btn-gray" onclick="showScreen('menu')">← Back</button>
+      <div style="color:#FFD700;font-size:18px;font-weight:700">★ <span id="worldStars">0</span></div>
+    </div>
+    <h2 style="text-align:center;font-size:28px;font-weight:800;color:#212121">Choose Your World</h2>
+    <div class="worlds-grid" id="worldsGrid"></div>
+  </div>
+
+  <!-- ══════════ LEVELS ══════════ -->
+  <div id="levels" class="screen">
+    <div style="display:flex;align-items:center;justify-content:space-between">
+      <button class="btn btn-sm btn-gray" onclick="showScreen('worlds')">← Worlds</button>
+      <div style="color:#FFD700;font-size:18px;font-weight:700">★ <span id="levelStars">0</span></div>
+    </div>
+    <h2 style="text-align:center;font-size:26px;font-weight:800;color:#212121">🌉 Bridge Builder</h2>
+    <p style="text-align:center;font-size:14px;color:#757575;margin-bottom:6px">Build bridges that can hold the weight!</p>
+    <div id="levelList" style="display:flex;flex-direction:column;gap:12px;max-width:500px;margin:0 auto;width:100%"></div>
+  </div>
+
+  <!-- ══════════ INTRO ══════════ -->
+  <div id="intro" class="screen">
+    <div class="intro-emoji" id="introEmoji"></div>
+    <div class="intro-title" id="introTitle"></div>
+    <div class="intro-desc" id="introDesc"></div>
+    <div class="tip-card"><div class="label">💡 TIP</div><div class="body" id="introTip"></div></div>
+    <div class="fact-card"><div class="label">📚 DID YOU KNOW?</div><div class="body" id="introFact"></div></div>
+    <button class="btn btn-lg btn-green" onclick="startGame()" style="margin-top:8px">LET'S BUILD! 🔨</button>
+  </div>
+
+  <!-- ══════════ GAME ══════════ -->
+  <div id="game" class="screen">
+    <div class="game-topbar">
+      <button class="btn btn-sm btn-gray" onclick="exitGame()" style="padding:6px 12px">← Back</button>
+      <div style="text-align:center">
+        <div class="title" id="gameTitle"></div>
+        <div class="meta" id="gameMeta"></div>
+      </div>
+      <div style="display:flex;gap:5px">
+        <button class="btn btn-sm btn-purple" onclick="toggleHelp()" style="padding:6px 10px">❓</button>
+        <button class="btn btn-sm btn-red" id="clearBtn" onclick="clearBeams()" style="padding:6px 12px">Clear</button>
+      </div>
+    </div>
+    <div class="canvas-wrap" id="canvasWrap">
+      <canvas id="gameCanvas"></canvas>
+      <div class="help-overlay" id="helpOverlay">
+        <div class="help-box">
+          <div class="hicon">🔨</div>
+          <h3>How to Build</h3>
+          <p>
+            <b>1.</b> Tap a dot to select it<br>
+            <b>2.</b> Tap a nearby dot to place a beam<br>
+            <b>3.</b> Double-tap a beam to remove it<br>
+            <b>4.</b> Hit <b>TEST IT!</b> when ready
+          </p>
+          <button class="btn btn-md btn-orange" onclick="toggleHelp()">Got it!</button>
+        </div>
+      </div>
+    </div>
+    <div class="game-bottombar" id="bottomBar">
+      <div style="display:flex;gap:6px" id="matBtns"></div>
+      <button class="btn btn-md btn-green" id="testBtn" onclick="startTest()" disabled>TEST IT! 🚛</button>
+    </div>
+    <div id="testingBar" style="display:none;padding:10px 14px;background:rgba(255,255,255,.95);border-radius:16px;text-align:center">
+      <div style="font-size:15px;font-weight:700;color:#212121;margin-bottom:6px">🚛 Testing your bridge...</div>
+      <div class="progress-bar"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
+    </div>
+  </div>
+
+  <!-- ══════════ RESULT ══════════ -->
+  <div id="result" class="screen">
+    <div class="result-emoji" id="resultEmoji"></div>
+    <div class="result-title" id="resultTitle"></div>
+    <div id="resultStars" class="stars" style="justify-content:center"></div>
+    <div class="principle-card" id="principleCard" style="display:none">
+      <div class="label" id="principleLabel"></div>
+      <div class="body" id="principleBody"></div>
+    </div>
+    <div class="result-hint" id="resultHint"></div>
+    <div class="result-btns" id="resultBtns"></div>
+    <button class="back-link" onclick="showScreen('levels')">Back to Levels</button>
+  </div>
+
+</div>
+
+<script>
+// ═══════════════════════════════════════════════════════════════
+//  BUILD LAB — Game Engine (Vanilla JS)
+// ═══════════════════════════════════════════════════════════════
+
+// ── DATA ──
+const LEVELS = [
+  {
+    id:1, name:"First Bridge", subtitle:"Learn the basics!",
+    description:"Connect the two sides to help the truck cross the river!",
+    tip:"Tap a dot, then tap another nearby dot to place a beam between them.",
+    fact:"The oldest known bridge is over 3,000 years old! Ancient people used fallen trees to cross rivers.",
+    emoji:"🌉", gridW:8, gridH:5, cellSize:65,
+    anchors:[[0,2],[0,3],[0,4],[1,2],[1,3],[1,4],[6,2],[6,3],[6,4],[7,2],[7,3],[7,4]],
+    groundTiles:[[0,3],[0,4],[1,3],[1,4],[6,3],[6,4],[7,3],[7,4]],
+    waterTiles:[[2,3],[2,4],[3,3],[3,4],[4,3],[4,4],[5,3],[5,4]],
+    roadY:2, roadStartX:0, roadEndX:7, par:8, vehicleWeight:2.5, vehicleSpeed:1.2,
+    principle:"Beams transfer weight to supports on each side.", principleIcon:"📐"
+  },
+  {
+    id:2, name:"Triangle Power", subtitle:"The strongest shape!",
+    description:"This gap is wider! You'll need triangles to make your bridge strong enough.",
+    tip:"Triangles can't be squished out of shape — try adding diagonal beams between your straight ones!",
+    fact:"The Eiffel Tower is made of 18,038 pieces of iron connected in triangle shapes called trusses. That's what makes it so strong!",
+    emoji:"🗼", gridW:9, gridH:6, cellSize:58,
+    anchors:[[0,2],[0,3],[0,4],[0,5],[1,2],[1,3],[1,4],[1,5],[7,2],[7,3],[7,4],[7,5],[8,2],[8,3],[8,4],[8,5]],
+    groundTiles:[[0,3],[0,4],[0,5],[1,3],[1,4],[1,5],[7,3],[7,4],[7,5],[8,3],[8,4],[8,5]],
+    waterTiles:[[2,3],[2,4],[2,5],[3,3],[3,4],[3,5],[4,3],[4,4],[4,5],[5,3],[5,4],[5,5],[6,3],[6,4],[6,5]],
+    roadY:2, roadStartX:0, roadEndX:8, par:14, vehicleWeight:3.0, vehicleSpeed:1.0,
+    principle:"Triangles are the strongest shape in engineering! They resist bending and twisting.", principleIcon:"🔺"
+  },
+  {
+    id:3, name:"The Pillar", subtitle:"Build UP to go ACROSS!",
+    description:"Use the rock in the middle of the river as a support pillar!",
+    tip:"Pillars push weight straight down into the ground. Build down to the rock, then bridge across!",
+    fact:"The ancient Romans built aqueducts with tall pillars to carry water across entire valleys — some still work today, 2,000 years later!",
+    emoji:"🏛️", gridW:10, gridH:6, cellSize:52,
+    anchors:[[0,2],[0,3],[0,4],[0,5],[1,2],[1,3],[1,4],[1,5],[8,2],[8,3],[8,4],[8,5],[9,2],[9,3],[9,4],[9,5],[4,4],[4,5],[5,4],[5,5]],
+    groundTiles:[[0,3],[0,4],[0,5],[1,3],[1,4],[1,5],[8,3],[8,4],[8,5],[9,3],[9,4],[9,5],[4,4],[4,5],[5,4],[5,5]],
+    waterTiles:[[2,3],[2,4],[2,5],[3,3],[3,4],[3,5],[6,3],[6,4],[6,5],[7,3],[7,4],[7,5]],
+    roadY:2, roadStartX:0, roadEndX:9, par:18, vehicleWeight:3.5, vehicleSpeed:0.9,
+    principle:"Pillars carry weight straight down to the ground — the shorter the pillar, the stronger!", principleIcon:"🏗️"
+  },
+  {
+    id:4, name:"Heavy Hauler", subtitle:"Can your bridge handle it?",
+    description:"A super heavy truck needs to cross! You might need steel beams for this one.",
+    tip:"Steel is stronger than wood but costs more. Use steel where the load is heaviest — the middle!",
+    fact:"The Golden Gate Bridge holds up to 4,000 vehicles at once! Its cables contain 80,000 miles of steel wire — enough to wrap around Earth 3 times!",
+    emoji:"🌁", gridW:9, gridH:6, cellSize:58,
+    anchors:[[0,2],[0,3],[0,4],[0,5],[1,2],[1,3],[1,4],[1,5],[7,2],[7,3],[7,4],[7,5],[8,2],[8,3],[8,4],[8,5]],
+    groundTiles:[[0,3],[0,4],[0,5],[1,3],[1,4],[1,5],[7,3],[7,4],[7,5],[8,3],[8,4],[8,5]],
+    waterTiles:[[2,3],[2,4],[2,5],[3,3],[3,4],[3,5],[4,3],[4,4],[4,5],[5,3],[5,4],[5,5],[6,3],[6,4],[6,5]],
+    roadY:2, roadStartX:0, roadEndX:8, par:16, vehicleWeight:5.5, vehicleSpeed:0.7,
+    principle:"Different materials have different strengths. Engineers pick the right material for each job!", principleIcon:"💪"
+  },
+  {
+    id:5, name:"Master Builder", subtitle:"The ultimate challenge!",
+    description:"A deep canyon with tricky terrain. Use everything you've learned!",
+    tip:"Combine triangles, pillars, and the right materials. Think like a real engineer!",
+    fact:"The Millau Viaduct in France is the tallest bridge in the world at 1,125 feet — taller than the Eiffel Tower! Engineers spent 3 years building it.",
+    emoji:"🏔️", gridW:11, gridH:7, cellSize:48,
+    anchors:[[0,2],[0,3],[0,4],[0,5],[0,6],[1,2],[1,3],[1,4],[1,5],[1,6],[9,3],[9,4],[9,5],[9,6],[10,3],[10,4],[10,5],[10,6],[5,5],[5,6]],
+    groundTiles:[[0,3],[0,4],[0,5],[0,6],[1,3],[1,4],[1,5],[1,6],[9,4],[9,5],[9,6],[10,4],[10,5],[10,6],[5,5],[5,6]],
+    waterTiles:[[2,4],[2,5],[2,6],[3,4],[3,5],[3,6],[4,4],[4,5],[4,6],[6,4],[6,5],[6,6],[7,4],[7,5],[7,6],[8,4],[8,5],[8,6]],
+    roadY:2, roadStartX:0, roadEndX:10, par:24, vehicleWeight:4.5, vehicleSpeed:0.8,
+    principle:"Real engineers combine ALL these ideas — triangles, pillars, and smart material choices — to build amazing things!", principleIcon:"🎓"
+  }
+];
+
+const MATERIALS = {
+  wood:{ name:"Wood", color:"#A1887F", stroke:"#6D4C41", maxStress:0.35, width:8, emoji:"🪵", cost:1 },
+  steel:{ name:"Steel", color:"#78909C", stroke:"#455A64", maxStress:0.65, width:6, emoji:"🔩", cost:2 }
+};
+
+const WORLDS = [
+  { name:"Bridges", emoji:"🌉", color:"#2196F3", unlocked:true, desc:"Build bridges that hold!" },
+  { name:"Towers", emoji:"🏰", color:"#7C4DFF", unlocked:false, desc:"Stack high & stay stable!" },
+  { name:"Arches", emoji:"🏛️", color:"#009688", unlocked:false, desc:"Master the ancient arch!" },
+  { name:"Circuits", emoji:"⚡", color:"#E91E63", unlocked:false, desc:"Wire up & power on!" }
+];
+
+// ── PHYSICS CONSTANTS ──
+const GRAVITY = 0.4, DAMPING = 0.98, ITERATIONS = 8, BREAK_MULT = 2.5;
+
+// ── STATE ──
+let currentLevel = 0;
+let earnedStars = {};
+let material = "wood";
+let selectedNode = null;
+let gameNodes = [];
+let gameBeams = [];
+let helpVisible = true;
+let isTesting = false;
+let animId = null;
+let vehicle = null;
+let canvas, ctx;
+
+// ── SCREEN MANAGEMENT ──
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  if (id === 'menu') updateMenuStars();
+  if (id === 'worlds') renderWorlds();
+  if (id === 'levels') renderLevels();
+}
+
+function updateMenuStars() {
+  const total = Object.values(earnedStars).reduce((a,b)=>a+b,0);
+  const el = document.getElementById('menuStars');
+  const num = document.getElementById('menuStarNum');
+  if (total > 0) { el.style.display='block'; num.textContent=total; }
+  else el.style.display='none';
+}
+
+function starsHTML(count, size) {
+  size = size || 28;
+  let h = '';
+  for (let i=0;i<3;i++) h += `<span class="star ${i<count?'on':'off'}" style="font-size:${size}px">★</span>`;
+  return h;
+}
+
+// ── WORLDS ──
+function renderWorlds() {
+  const total = Object.values(earnedStars).reduce((a,b)=>a+b,0);
+  document.getElementById('worldStars').textContent = total;
+  const grid = document.getElementById('worldsGrid');
+  grid.innerHTML = '';
+  WORLDS.forEach(w => {
+    const card = document.createElement('button');
+    card.className = 'world-card' + (w.unlocked?'':' locked');
+    card.style.background = w.unlocked ? `linear-gradient(135deg,${w.color},${w.color}cc)` : '#BDBDBD';
+    card.style.boxShadow = w.unlocked ? `0 6px 20px ${w.color}44` : 'none';
+    card.innerHTML = `
+      ${w.unlocked?'':'<div class="lock">🔒</div>'}
+      <div class="emoji">${w.emoji}</div>
+      <div class="wname">${w.name}</div>
+      <div class="wdesc">${w.desc}</div>
+      ${w.unlocked ? '<div class="stars" style="justify-content:center">' + starsHTML(Math.min(3, total), 18) + '</div>' : '<div class="soon">COMING SOON</div>'}
+    `;
+    if (w.unlocked) card.onclick = () => showScreen('levels');
+    grid.appendChild(card);
+  });
+}
+
+// ── LEVELS ──
+function renderLevels() {
+  const total = Object.values(earnedStars).reduce((a,b)=>a+b,0);
+  document.getElementById('levelStars').textContent = total;
+  const list = document.getElementById('levelList');
+  list.innerHTML = '';
+  LEVELS.forEach((l, i) => {
+    const unlocked = i === 0 || (earnedStars[i-1] || 0) > 0;
+    const btn = document.createElement('button');
+    btn.className = 'level-btn' + (unlocked?'':' locked');
+    btn.innerHTML = `
+      <div class="level-num" style="background:${unlocked?'linear-gradient(135deg,#2196F3,#1565C0)':'#BDBDBD'}">
+        ${unlocked ? l.id : '🔒'}
+      </div>
+      <div class="level-info">
+        <div class="level-name">${l.name}</div>
+        <div class="level-sub">${l.subtitle}</div>
+      </div>
+      <div class="stars">${starsHTML(earnedStars[i]||0, 20)}</div>
+    `;
+    if (unlocked) btn.onclick = () => showIntro(i);
+    list.appendChild(btn);
+  });
+}
+
+// ── INTRO ──
+function showIntro(idx) {
+  currentLevel = idx;
+  const l = LEVELS[idx];
+  document.getElementById('introEmoji').textContent = l.emoji;
+  document.getElementById('introTitle').textContent = `Level ${l.id}: ${l.name}`;
+  document.getElementById('introDesc').textContent = l.description;
+  document.getElementById('introTip').textContent = l.tip;
+  document.getElementById('introFact').textContent = l.fact;
+  showScreen('intro');
+}
+
+// ── INIT GAME ──
+function startGame() {
+  const l = LEVELS[currentLevel];
+  const anchorSet = new Set(l.anchors.map(([x,y])=>`${x},${y}`));
+  gameNodes = [];
+  gameBeams = [];
+  selectedNode = null;
+  isTesting = false;
+  vehicle = null;
+  material = 'wood';
+  helpVisible = true;
+
+  for (let gx=0; gx<l.gridW; gx++) {
+    for (let gy=0; gy<l.gridH; gy++) {
+      const isGround = l.groundTiles.some(([tx,ty])=>tx===gx&&ty===gy);
+      const isWater = l.waterTiles && l.waterTiles.some(([tx,ty])=>tx===gx&&ty===gy);
+      if (isGround || isWater) continue;
+      const fixed = anchorSet.has(`${gx},${gy}`);
+      gameNodes.push({ x:40+gx*l.cellSize, y:40+gy*l.cellSize, px:40+gx*l.cellSize, py:40+gy*l.cellSize, fixed, gx, gy });
+    }
+  }
+
+  showScreen('game');
+  initCanvas();
+  updateMaterialBtns();
+  updateGameUI();
+  document.getElementById('helpOverlay').style.display = 'flex';
+  document.getElementById('bottomBar').style.display = 'flex';
+  document.getElementById('testingBar').style.display = 'none';
+  drawGame();
+}
+
+function initCanvas() {
+  canvas = document.getElementById('gameCanvas');
+  ctx = canvas.getContext('2d');
+  resizeCanvas();
+}
+
+function resizeCanvas() {
+  const l = LEVELS[currentLevel];
+  const wrap = document.getElementById('canvasWrap');
+  const w = l.gridW * l.cellSize + 80;
+  const h = l.gridH * l.cellSize + 80;
+  const aspect = w / h;
+  const maxW = wrap.clientWidth;
+  const maxH = wrap.clientHeight || 500;
+  let cw, ch;
+  if (maxW / maxH > aspect) { ch = maxH; cw = ch * aspect; }
+  else { cw = maxW; ch = cw / aspect; }
+  canvas.width = w;
+  canvas.height = h;
+  canvas.style.width = cw + 'px';
+  canvas.style.height = ch + 'px';
+}
+
+// ── MATERIAL BUTTONS ──
+function updateMaterialBtns() {
+  const container = document.getElementById('matBtns');
+  container.innerHTML = '';
+  for (const [key, mat] of Object.entries(MATERIALS)) {
+    const btn = document.createElement('button');
+    btn.className = 'mat-btn' + (material===key?' active':'');
+    btn.innerHTML = `${mat.emoji} ${mat.name}`;
+    btn.onclick = () => { material=key; updateMaterialBtns(); };
+    container.appendChild(btn);
+  }
+}
+
+function updateGameUI() {
+  const l = LEVELS[currentLevel];
+  document.getElementById('gameTitle').textContent = l.name;
+  document.getElementById('gameMeta').textContent = `Beams: ${gameBeams.length} | Par: ${l.par}`;
+  document.getElementById('testBtn').disabled = gameBeams.length === 0;
+}
+
+function toggleHelp() {
+  helpVisible = !helpVisible;
+  document.getElementById('helpOverlay').style.display = helpVisible ? 'flex' : 'none';
+}
+
+function clearBeams() {
+  gameBeams = [];
+  selectedNode = null;
+  updateGameUI();
+  drawGame();
+}
+
+function exitGame() {
+  isTesting = false;
+  if (animId) cancelAnimationFrame(animId);
+  vehicle = null;
+  showScreen('levels');
+}
+
+// ── CANVAS INPUT ──
+(function() {
+  let lastTap = 0;
+  document.addEventListener('DOMContentLoaded', () => {
+    const c = document.getElementById('gameCanvas');
+
+    c.addEventListener('pointerdown', (e) => {
+      if (isTesting) return;
+      e.preventDefault();
+      const pt = canvasPoint(e);
+      if (!pt) return;
+
+      const now = Date.now();
+      // Double-tap detection for beam removal
+      if (now - lastTap < 350) {
+        removeBeamAt(pt);
+        lastTap = 0;
+        return;
+      }
+      lastTap = now;
+
+      // Find closest node
+      let closest = null, closestDist = 35;
+      for (const n of gameNodes) {
+        const d = Math.hypot(n.x-pt.x, n.y-pt.y);
+        if (d < closestDist) { closestDist=d; closest=n; }
+      }
+
+      if (!closest) { selectedNode=null; drawGame(); return; }
+
+      if (!selectedNode) {
+        selectedNode = closest;
+      } else if (closest === selectedNode) {
+        selectedNode = null;
+      } else {
+        // Check no duplicate
+        const exists = gameBeams.some(b =>
+          !b.broken && ((b.a===selectedNode&&b.b===closest)||(b.a===closest&&b.b===selectedNode))
+        );
+        if (!exists) {
+          const gdx = Math.abs(closest.gx - selectedNode.gx);
+          const gdy = Math.abs(closest.gy - selectedNode.gy);
+          if (gdx <= 2 && gdy <= 2 && !(gdx===0&&gdy===0)) {
+            const dx = closest.x - selectedNode.x;
+            const dy = closest.y - selectedNode.y;
+            gameBeams.push({
+              a:selectedNode, b:closest, material,
+              restLength: Math.sqrt(dx*dx+dy*dy), stress:0, broken:false
+            });
+          }
+        }
+        selectedNode = null;
+      }
+      updateGameUI();
+      drawGame();
+    });
+  });
+})();
+
+function canvasPoint(e) {
+  if (!canvas) return null;
+  const rect = canvas.getBoundingClientRect();
+  const sx = canvas.width / rect.width;
+  const sy = canvas.height / rect.height;
+  return { x:(e.clientX-rect.left)*sx, y:(e.clientY-rect.top)*sy };
+}
+
+function removeBeamAt(pt) {
+  let closest = -1, closestDist = 25;
+  gameBeams.forEach((b,i) => {
+    if (b.broken) return;
+    // Distance from point to line segment
+    const dx = b.b.x-b.a.x, dy = b.b.y-b.a.y;
+    const len2 = dx*dx+dy*dy;
+    let t = len2===0 ? 0 : ((pt.x-b.a.x)*dx+(pt.y-b.a.y)*dy)/len2;
+    t = Math.max(0, Math.min(1, t));
+    const px = b.a.x + t*dx, py = b.a.y + t*dy;
+    const d = Math.hypot(pt.x-px, pt.y-py);
+    if (d < closestDist) { closestDist=d; closest=i; }
+  });
+  if (closest >= 0) {
+    gameBeams.splice(closest, 1);
+    updateGameUI();
+    drawGame();
+  }
+}
+
+// ── DRAWING ──
+function drawGame() {
+  if (!ctx) return;
+  const l = LEVELS[currentLevel];
+  const w = canvas.width, h = canvas.height;
+
+  // Sky
+  const skyG = ctx.createLinearGradient(0,0,0,h);
+  skyG.addColorStop(0,'#87CEEB'); skyG.addColorStop(1,'#E0F4FF');
+  ctx.fillStyle = skyG; ctx.fillRect(0,0,w,h);
+
+  // Clouds
+  ctx.fillStyle = 'rgba(255,255,255,0.65)';
+  const t = Date.now()*0.00008;
+  for (let i=0;i<5;i++) {
+    const cx = ((i*180+t*60*(i+1))%(w+120))-60;
+    const cy = 15+i*22;
+    ctx.beginPath();
+    ctx.arc(cx,cy,22,0,Math.PI*2);
+    ctx.arc(cx+18,cy-7,17,0,Math.PI*2);
+    ctx.arc(cx+36,cy,20,0,Math.PI*2);
+    ctx.fill();
+  }
+
+  // Water
+  if (l.waterTiles) {
+    for (const [gx,gy] of l.waterTiles) {
+      const wx=40+gx*l.cellSize-l.cellSize/2, wy=40+gy*l.cellSize-l.cellSize/2;
+      const wg = ctx.createLinearGradient(wx,wy,wx,wy+l.cellSize);
+      wg.addColorStop(0,'#29B6F6'); wg.addColorStop(1,'#0288D1');
+      ctx.fillStyle=wg; ctx.fillRect(wx,wy,l.cellSize,l.cellSize);
+      ctx.strokeStyle='rgba(255,255,255,0.3)'; ctx.lineWidth=1.5;
+      const wt=Date.now()*0.003;
+      ctx.beginPath();
+      for (let px=wx;px<wx+l.cellSize;px+=3) ctx.lineTo(px, wy+8+Math.sin(wt+px*0.08)*3);
+      ctx.stroke();
+    }
+  }
+
+  // Ground
+  for (const [gx,gy] of l.groundTiles) {
+    const tx=40+gx*l.cellSize-l.cellSize/2, ty=40+gy*l.cellSize-l.cellSize/2;
+    ctx.fillStyle = gy<=l.roadY+1 ? '#4CAF50' : '#8D6E63';
+    ctx.fillRect(tx,ty,l.cellSize,l.cellSize);
+    if (gy<=l.roadY+1) {
+      ctx.fillStyle='#66BB6A';
+      for (let g=0;g<3;g++) {
+        const gxp=tx+8+g*18;
+        ctx.beginPath(); ctx.moveTo(gxp,ty); ctx.lineTo(gxp+3,ty-5); ctx.lineTo(gxp+6,ty); ctx.fill();
+      }
+    }
+  }
+
+  // Beams
+  const drawBeams = isTesting ? physicsBeams : gameBeams;
+  for (const beam of drawBeams) {
+    if (beam.broken) {
+      // debris
+      ctx.beginPath();
+      ctx.moveTo(beam.a.x,beam.a.y);
+      const mx=(beam.a.x+beam.b.x)/2, my=(beam.a.y+beam.b.y)/2;
+      ctx.lineTo(mx+(Math.random()*10-5), my+Math.random()*10);
+      ctx.strokeStyle='rgba(200,100,100,0.4)'; ctx.lineWidth=3; ctx.stroke();
+      continue;
+    }
+    const mat = MATERIALS[beam.material];
+    const sc = beam.stress < mat.maxStress*0.5 ? '#4CAF50' : beam.stress<mat.maxStress ? '#FFC107' : '#F44336';
+    // Outer
+    ctx.beginPath(); ctx.moveTo(beam.a.x,beam.a.y); ctx.lineTo(beam.b.x,beam.b.y);
+    ctx.strokeStyle = isTesting ? 'rgba(0,0,0,0.15)' : mat.stroke;
+    ctx.lineWidth = mat.width+3; ctx.lineCap='round'; ctx.stroke();
+    // Inner
+    ctx.beginPath(); ctx.moveTo(beam.a.x,beam.a.y); ctx.lineTo(beam.b.x,beam.b.y);
+    ctx.strokeStyle = isTesting ? sc : mat.color;
+    ctx.lineWidth = mat.width; ctx.lineCap='round'; ctx.stroke();
+  }
+
+  // Nodes
+  const drawNodes = isTesting ? physicsNodes : gameNodes;
+  for (const n of drawNodes) {
+    if (n.fixed) {
+      // Anchor glow
+      ctx.beginPath(); ctx.arc(n.x,n.y,13,0,Math.PI*2);
+      ctx.strokeStyle='#FFD54F'; ctx.lineWidth=2; ctx.stroke();
+      // Anchor fill
+      ctx.beginPath(); ctx.arc(n.x,n.y,9,0,Math.PI*2);
+      ctx.fillStyle='#FF6F00'; ctx.fill();
+      ctx.beginPath(); ctx.arc(n.x,n.y,4,0,Math.PI*2);
+      ctx.fillStyle='#fff'; ctx.fill();
+    } else if (!isTesting) {
+      ctx.beginPath(); ctx.arc(n.x,n.y,5,0,Math.PI*2);
+      ctx.fillStyle='#90A4AE'; ctx.fill();
+    }
+    // Selection ring
+    if (selectedNode===n && !isTesting) {
+      ctx.beginPath(); ctx.arc(n.x,n.y,18,0,Math.PI*2);
+      ctx.strokeStyle='#FF9800'; ctx.lineWidth=3;
+      ctx.setLineDash([5,5]); ctx.stroke(); ctx.setLineDash([]);
+    }
+  }
+
+  // Vehicle
+  if (vehicle && vehicle.active) {
+    const vx=vehicle.x, vy=vehicle.y-18;
+    // Shadow
+    ctx.fillStyle='rgba(0,0,0,0.1)';
+    ctx.beginPath(); ctx.ellipse(vx,vy+28,24,5,0,0,Math.PI*2); ctx.fill();
+    // Body
+    ctx.fillStyle='#FF5722';
+    roundRect(ctx,vx-22,vy-14,44,22,5); ctx.fill();
+    // Cab
+    ctx.fillStyle='#E64A19';
+    roundRect(ctx,vx+4,vy-26,18,16,4); ctx.fill();
+    // Window
+    ctx.fillStyle='#B3E5FC';
+    ctx.fillRect(vx+7,vy-23,12,9);
+    // Wheels
+    ctx.fillStyle='#333';
+    ctx.beginPath(); ctx.arc(vx-12,vy+8,7,0,Math.PI*2); ctx.fill();
+    ctx.beginPath(); ctx.arc(vx+12,vy+8,7,0,Math.PI*2); ctx.fill();
+    ctx.fillStyle='#999';
+    ctx.beginPath(); ctx.arc(vx-12,vy+8,3,0,Math.PI*2); ctx.fill();
+    ctx.beginPath(); ctx.arc(vx+12,vy+8,3,0,Math.PI*2); ctx.fill();
+  }
+}
+
+function roundRect(ctx,x,y,w,h,r) {
+  ctx.beginPath();
+  ctx.moveTo(x+r,y);
+  ctx.lineTo(x+w-r,y); ctx.quadraticCurveTo(x+w,y,x+w,y+r);
+  ctx.lineTo(x+w,y+h-r); ctx.quadraticCurveTo(x+w,y+h,x+w-r,y+h);
+  ctx.lineTo(x+r,y+h); ctx.quadraticCurveTo(x,y+h,x,y+h-r);
+  ctx.lineTo(x,y+r); ctx.quadraticCurveTo(x,y,x+r,y);
+  ctx.closePath();
+}
+
+// ── PHYSICS ──
+let physicsNodes = [], physicsBeams = [];
+
+function stepPhysics(dt) {
+  const l = LEVELS[currentLevel];
+  // Gravity + Verlet
+  for (const n of physicsNodes) {
+    if (n.fixed) continue;
+    const vx = (n.x-n.px)*DAMPING;
+    const vy = (n.y-n.py)*DAMPING;
+    n.px=n.x; n.py=n.y;
+    n.x+=vx; n.y+=vy+GRAVITY;
+  }
+
+  // Vehicle force
+  if (vehicle && vehicle.active && vehicle.moving) {
+    const roadNodes = physicsNodes.filter(n=>n.gy===l.roadY).sort((a,b)=>a.gx-b.gx);
+    if (roadNodes.length>=2) {
+      for (let i=0;i<roadNodes.length-1;i++) {
+        const a=roadNodes[i], b=roadNodes[i+1];
+        if (vehicle.x>=a.x && vehicle.x<=b.x) {
+          const t = (vehicle.x-a.x)/(b.x-a.x||1);
+          const force = l.vehicleWeight*GRAVITY*3;
+          if (!a.fixed) a.y += force*(1-t)*0.5;
+          if (!b.fixed) b.y += force*t*0.5;
+          vehicle.y = a.y+(b.y-a.y)*t;
+          break;
+        }
+      }
+    }
+  }
+
+  // Constraints
+  for (let iter=0;iter<ITERATIONS;iter++) {
+    for (const b of physicsBeams) {
+      if (b.broken) continue;
+      const dx=b.b.x-b.a.x, dy=b.b.y-b.a.y;
+      const dist=Math.sqrt(dx*dx+dy*dy)||0.001;
+      const diff=(b.restLength-dist)/dist;
+      const ox=dx*diff*0.5, oy=dy*diff*0.5;
+      if (!b.a.fixed) { b.a.x-=ox; b.a.y-=oy; }
+      if (!b.b.fixed) { b.b.x+=ox; b.b.y+=oy; }
+      b.stress = Math.abs(dist-b.restLength)/b.restLength;
+    }
+  }
+
+  // Break
+  for (const b of physicsBeams) {
+    if (b.broken) continue;
+    if (b.stress > MATERIALS[b.material].maxStress*BREAK_MULT) b.broken=true;
+  }
+
+  // Check fell
+  return physicsNodes.some(n=>!n.fixed&&n.y>800);
+}
+
+// ── TEST ──
+function startTest() {
+  if (gameBeams.length===0) return;
+  const l = LEVELS[currentLevel];
+  isTesting = true;
+  helpVisible = false;
+  document.getElementById('helpOverlay').style.display='none';
+  document.getElementById('bottomBar').style.display='none';
+  document.getElementById('testingBar').style.display='block';
+  document.getElementById('clearBtn').disabled=true;
+
+  // Deep clone
+  physicsNodes = gameNodes.map(n=>({...n}));
+  physicsBeams = gameBeams.map(b=>({
+    ...b,
+    a: physicsNodes.find(n=>n.gx===b.a.gx&&n.gy===b.a.gy),
+    b: physicsNodes.find(n=>n.gx===b.b.gx&&n.gy===b.b.gy)
+  }));
+
+  const startX = 40+l.roadStartX*l.cellSize;
+  const endX = 40+l.roadEndX*l.cellSize;
+  vehicle = { x:startX-30, y:40+l.roadY*l.cellSize, active:true, moving:false, progress:0 };
+
+  let settleFrames = 0;
+
+  function loop() {
+    settleFrames++;
+    if (settleFrames > 45) vehicle.moving = true;
+
+    const fell = stepPhysics(1);
+
+    if (vehicle.moving) {
+      vehicle.x += l.vehicleSpeed*1.3;
+      vehicle.progress = (vehicle.x-startX)/(endX-startX);
+      document.getElementById('progressFill').style.width = Math.max(0,Math.min(100,vehicle.progress*100))+'%';
+
+      // Success!
+      if (vehicle.x >= endX+25) {
+        isTesting=false; vehicle.active=false;
+        const beamCount = gameBeams.length;
+        const stars = beamCount<=l.par ? 3 : beamCount<=l.par+4 ? 2 : 1;
+        earnedStars[currentLevel] = Math.max(earnedStars[currentLevel]||0, stars);
+        showResult(true, stars);
+        return;
+      }
+    }
+
+    // Failure
+    if (fell || physicsBeams.filter(b=>!b.broken).length===0 || (vehicle.moving && vehicle.y>600)) {
+      isTesting=false; vehicle.active=false;
+      showResult(false, 0);
+      return;
+    }
+
+    drawGame();
+    animId = requestAnimationFrame(loop);
+  }
+  animId = requestAnimationFrame(loop);
+}
+
+// ── RESULT ──
+function showResult(success, stars) {
+  if (animId) cancelAnimationFrame(animId);
+  const l = LEVELS[currentLevel];
+  const el = document.getElementById('result');
+  el.className = 'screen active ' + (success?'success':'fail');
+
+  document.getElementById('resultEmoji').textContent = success?'🎉':'💥';
+  const title = document.getElementById('resultTitle');
+  title.textContent = success?'BRIDGE HELD!':'BRIDGE COLLAPSED!';
+  title.className = 'result-title '+(success?'win':'lose');
+
+  const starsEl = document.getElementById('resultStars');
+  starsEl.innerHTML = success ? starsHTML(stars,40) : '';
+
+  const pc = document.getElementById('principleCard');
+  if (success) {
+    pc.style.display='block';
+    document.getElementById('principleLabel').textContent = l.principleIcon+' ENGINEERING PRINCIPLE';
+    document.getElementById('principleBody').textContent = l.principle;
+  } else pc.style.display='none';
+
+  document.getElementById('resultHint').textContent = success ? '' :
+    "Don't worry — even real engineers test many designs before they get it right! Try adding more support or using triangles.";
+
+  const btns = document.getElementById('resultBtns');
+  btns.innerHTML = '';
+  const retry = document.createElement('button');
+  retry.className = 'btn btn-md '+(success?'btn-blue':'btn-orange');
+  retry.textContent = success?'Try Again':'Try Again 🔄';
+  retry.onclick = () => startGame();
+  btns.appendChild(retry);
+
+  if (success && currentLevel < LEVELS.length-1) {
+    const next = document.createElement('button');
+    next.className = 'btn btn-md btn-green';
+    next.textContent = 'Next Level →';
+    next.onclick = () => { currentLevel++; showIntro(currentLevel); };
+    btns.appendChild(next);
+  }
+  if (success && currentLevel === LEVELS.length-1) {
+    const done = document.createElement('button');
+    done.className = 'btn btn-md btn-purple';
+    done.textContent = 'All Done! 🏆';
+    done.onclick = () => showScreen('worlds');
+    btns.appendChild(done);
+  }
+
+  showScreen('result');
+}
+
+// ── BG ICONS ON MENU ──
+function setupMenuBG() {
+  const icons = ['⚙️','🔧','🔩','🏗️','📐','🔨','🪵','⚡','🏛️','🌉'];
+  const container = document.getElementById('bgIcons');
+  for (let i=0;i<18;i++) {
+    const span = document.createElement('span');
+    span.className='bg-icon';
+    span.style.left = (i*37%100)+'%';
+    span.style.top = (i*53%100)+'%';
+    span.style.fontSize = [22,30,18,26,24,20][i%6]+'px';
+    span.style.transform = `rotate(${i*30}deg)`;
+    span.textContent = icons[i%icons.length];
+    container.appendChild(span);
+  }
+}
+
+// ── RESIZE HANDLER ──
+window.addEventListener('resize', () => {
+  if (document.getElementById('game').classList.contains('active') && canvas) {
+    resizeCanvas();
+    drawGame();
+  }
+});
+
+// ── INIT ──
+document.addEventListener('DOMContentLoaded', () => {
+  setupMenuBG();
+  // Prevent zoom on double tap
+  document.addEventListener('touchstart', e => {
+    if (e.touches.length > 1) e.preventDefault();
+  }, {passive:false});
+  let lastTouch = 0;
+  document.addEventListener('touchend', e => {
+    const now = Date.now();
+    if (now-lastTouch <= 300) e.preventDefault();
+    lastTouch = now;
+  }, false);
+});
+</script>
+</body>
+</html>
