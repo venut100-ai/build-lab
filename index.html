@@ -161,9 +161,11 @@
   .result-hint { font-size:15px; color:#757575; max-width:340px; line-height:1.5; }
   .result-btns { display:flex; gap:12px; margin-top:8px; flex-wrap:wrap; justify-content:center; }
   .back-link { background:none; border:none; color:#757575; font-size:14px; cursor:pointer; margin-top:6px; font-family:inherit; }
+  #confettiCanvas { position:fixed; inset:0; pointer-events:none; z-index:999; }
 </style>
 </head>
 <body>
+<canvas id="confettiCanvas"></canvas>
 <div id="app">
 
   <!-- MENU -->
@@ -1408,8 +1410,87 @@ function showResult(success, stars) {
     btns.appendChild(done);
   }
 
+  if (success) {
+    confetti.launch(stars);
+    setTimeout(() => confetti.launch(stars), 400);
+    if (stars === 3) setTimeout(() => confetti.launch(3), 800);
+  }
+
   showScreen('result');
 }
+
+// ── CONFETTI CELEBRATION ──
+const confetti = {
+  canvas: null, ctx: null, particles: [], animId: null,
+  colors: ['#FF6B6B','#FFD93D','#6BCB77','#4D96FF','#FF922B','#CC5DE8','#20C997','#FF6B9D'],
+  init() {
+    this.canvas = document.getElementById('confettiCanvas');
+    this.ctx = this.canvas.getContext('2d');
+    this.resize();
+    window.addEventListener('resize', () => this.resize());
+  },
+  resize() {
+    if (!this.canvas) return;
+    this.canvas.width = window.innerWidth;
+    this.canvas.height = window.innerHeight;
+  },
+  launch(intensity) {
+    const count = intensity === 3 ? 150 : intensity === 2 ? 100 : 60;
+    for (let i = 0; i < count; i++) {
+      this.particles.push({
+        x: Math.random() * this.canvas.width,
+        y: -20 - Math.random() * 200,
+        vx: (Math.random() - 0.5) * 8,
+        vy: Math.random() * 3 + 2,
+        size: Math.random() * 8 + 4,
+        color: this.colors[Math.floor(Math.random() * this.colors.length)],
+        rotation: Math.random() * 360,
+        rotSpeed: (Math.random() - 0.5) * 12,
+        shape: Math.random() > 0.5 ? 'rect' : 'circle',
+        life: 1,
+        decay: 0.003 + Math.random() * 0.004,
+        wobble: Math.random() * 10,
+        wobbleSpeed: 0.03 + Math.random() * 0.05
+      });
+    }
+    if (!this.animId) this.animate();
+  },
+  animate() {
+    this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+    for (let i = this.particles.length - 1; i >= 0; i--) {
+      const p = this.particles[i];
+      p.x += p.vx + Math.sin(p.wobble) * 0.5;
+      p.y += p.vy;
+      p.vy += 0.04;
+      p.vx *= 0.99;
+      p.rotation += p.rotSpeed;
+      p.wobble += p.wobbleSpeed;
+      p.life -= p.decay;
+      if (p.life <= 0 || p.y > this.canvas.height + 20) {
+        this.particles.splice(i, 1); continue;
+      }
+      this.ctx.save();
+      this.ctx.translate(p.x, p.y);
+      this.ctx.rotate(p.rotation * Math.PI / 180);
+      this.ctx.globalAlpha = p.life;
+      this.ctx.fillStyle = p.color;
+      if (p.shape === 'rect') {
+        this.ctx.fillRect(-p.size / 2, -p.size / 4, p.size, p.size / 2);
+      } else {
+        this.ctx.beginPath();
+        this.ctx.arc(0, 0, p.size / 2, 0, Math.PI * 2);
+        this.ctx.fill();
+      }
+      this.ctx.restore();
+    }
+    if (this.particles.length > 0) {
+      this.animId = requestAnimationFrame(() => this.animate());
+    } else {
+      this.animId = null;
+      this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+    }
+  }
+};
 
 // ── BG ICONS ──
 function setupMenuBG() {
@@ -1439,6 +1520,7 @@ document.addEventListener('DOMContentLoaded', () => {
   loadProgress();
   setupMenuBG();
   updateMenuStars();
+  confetti.init();
   document.addEventListener('touchstart', e => { if(e.touches.length>1)e.preventDefault(); },{passive:false});
   let lastTouch=0;
   document.addEventListener('touchend', e => { const now=Date.now(); if(now-lastTouch<=300)e.preventDefault(); lastTouch=now; },false);
