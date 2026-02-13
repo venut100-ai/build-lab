@@ -162,6 +162,17 @@
   .result-btns { display:flex; gap:12px; margin-top:8px; flex-wrap:wrap; justify-content:center; }
   .back-link { background:none; border:none; color:#757575; font-size:14px; cursor:pointer; margin-top:6px; font-family:inherit; }
   #confettiCanvas { position:fixed; inset:0; pointer-events:none; z-index:999; }
+  #badges { background:linear-gradient(135deg,#FFF8E1,#FFF3E0); padding:24px; gap:14px; }
+  .badges-grid { display:grid; grid-template-columns:1fr 1fr 1fr; gap:12px; max-width:520px; margin:0 auto; width:100%; }
+  .badge-card {
+    padding:16px 10px; border-radius:16px; text-align:center; background:#fff;
+    box-shadow:0 3px 12px rgba(0,0,0,.07); transition:transform .15s;
+  }
+  .badge-card.earned { background:linear-gradient(135deg,#FFF9C4,#FFF176); box-shadow:0 4px 16px rgba(255,215,0,.3); }
+  .badge-card.locked { opacity:.45; }
+  .badge-emoji { font-size:36px; margin-bottom:4px; }
+  .badge-name { font-size:12px; font-weight:700; color:#212121; }
+  .badge-desc { font-size:10px; color:#757575; margin-top:2px; }
 </style>
 </head>
 <body>
@@ -176,6 +187,7 @@
     <div class="subtitle">Design. Build. Engineer!</div>
     <div class="star-count" id="menuStars" style="display:none">★ <span id="menuStarNum">0</span> Stars</div>
     <button class="btn btn-lg btn-orange" onclick="showScreen('worlds')" style="z-index:1;margin-top:8px;">START BUILDING</button>
+    <button class="btn btn-md btn-purple" onclick="showScreen('badges')" style="z-index:1">🏆 Badges</button>
     <div class="age-note">Built for curious minds ages 8+</div>
     <button class="btn btn-sm btn-gray" onclick="sfx.muted=!sfx.muted;this.textContent=sfx.muted?'🔇 Sound Off':'🔊 Sound On'" style="z-index:1;margin-top:4px">🔊 Sound On</button>
   </div>
@@ -264,6 +276,17 @@
       <div style="font-size:15px;font-weight:700;color:#212121;margin-bottom:6px" id="testingLabel">🚛 Testing your bridge...</div>
       <div class="progress-bar"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
     </div>
+  </div>
+
+  <!-- BADGES -->
+  <div id="badges" class="screen">
+    <div style="display:flex;align-items:center;justify-content:space-between">
+      <button class="btn btn-sm btn-gray" onclick="showScreen('menu')">← Back</button>
+      <div style="font-size:18px;font-weight:700;color:#FF8F00" id="badgeCount">0 / 0</div>
+    </div>
+    <h2 style="text-align:center;font-size:26px;font-weight:800;color:#212121">🏆 Builder Badges</h2>
+    <p style="text-align:center;font-size:14px;color:#757575">Complete challenges to earn badges!</p>
+    <div class="badges-grid" id="badgesGrid"></div>
   </div>
 
   <!-- RESULT -->
@@ -401,6 +424,7 @@ function showScreen(id) {
   if (id==='menu') updateMenuStars();
   if (id==='worlds') renderWorlds();
   if (id==='levels') renderLevels();
+  if (id==='badges') renderBadges();
 }
 
 function updateMenuStars() {
@@ -1417,9 +1441,72 @@ function showResult(success, stars) {
     confetti.launch(stars);
     setTimeout(() => confetti.launch(stars), 400);
     if (stars === 3) setTimeout(() => confetti.launch(3), 800);
+    const newBadge = checkBadges();
+    if (newBadge) {
+      sfx.play('badge');
+      setTimeout(() => {
+        const hint = document.getElementById('resultHint');
+        hint.innerHTML = `🏆 <b>NEW BADGE: ${newBadge.emoji} ${newBadge.name}!</b> — ${newBadge.desc}`;
+        hint.style.color = '#FF8F00';
+      }, 600);
+    }
   }
 
   showScreen('result');
+}
+
+// ── BUILDER BADGES ──
+const BADGES = [
+  { id:'first_build', emoji:'🔨', name:'First Build', desc:'Complete your first level', check:()=>getTotalStars()>=1 },
+  { id:'bridge_master', emoji:'🌉', name:'Bridge Master', desc:'Earn all bridge stars', check:()=>getWorldStars(0)>=15 },
+  { id:'tower_master', emoji:'🏰', name:'Tower King', desc:'Earn all tower stars', check:()=>getWorldStars(1)>=12 },
+  { id:'arch_master', emoji:'🏛️', name:'Arch Expert', desc:'Earn all arch stars', check:()=>getWorldStars(2)>=12 },
+  { id:'circuit_master', emoji:'⚡', name:'Circuit Whiz', desc:'Earn all circuit stars', check:()=>getWorldStars(3)>=12 },
+  { id:'star_collector', emoji:'⭐', name:'Star Collector', desc:'Earn 20 total stars', check:()=>getTotalStars()>=20 },
+  { id:'perfectionist', emoji:'💎', name:'Perfectionist', desc:'Get 3 stars on 5 levels', check:()=>Object.values(earnedStars).filter(s=>s===3).length>=5 },
+  { id:'engineer', emoji:'🎓', name:'Engineer', desc:'Complete all 4 worlds', check:()=>WORLD_DATA.every((_,i)=>getWorldStars(i)>0 && WORLD_DATA[i].levels.every((_,j)=>(earnedStars[starKey(i,j)]||0)>0)) },
+  { id:'persistent', emoji:'💪', name:'Never Give Up', desc:'Retry a level 5+ times', check:()=>Object.values(levelAttempts).some(a=>a>=5) },
+  { id:'speedster', emoji:'🚀', name:'Speedster', desc:'Beat a level under par', check:()=>{ for(let wi=0;wi<WORLD_DATA.length;wi++) for(let li=0;li<WORLD_DATA[wi].levels.length;li++) if((earnedStars[starKey(wi,li)]||0)===3) return true; return false; }},
+  { id:'all_stars', emoji:'🌟', name:'Superstar', desc:'Earn every single star', check:()=>getTotalStars()>=51 },
+  { id:'explorer', emoji:'🗺️', name:'Explorer', desc:'Try all 4 worlds', check:()=>WORLD_DATA.every((_,i)=>getWorldStars(i)>0) },
+];
+let earnedBadges = {};
+
+function loadBadges() {
+  try { earnedBadges = JSON.parse(localStorage.getItem('buildlab_badges')) || {}; } catch(e) { earnedBadges = {}; }
+}
+function saveBadges() {
+  try { localStorage.setItem('buildlab_badges', JSON.stringify(earnedBadges)); } catch(e) {}
+}
+
+function checkBadges() {
+  let newBadge = null;
+  for (const b of BADGES) {
+    if (!earnedBadges[b.id] && b.check()) {
+      earnedBadges[b.id] = Date.now();
+      newBadge = b;
+    }
+  }
+  saveBadges();
+  return newBadge;
+}
+
+function renderBadges() {
+  const grid = document.getElementById('badgesGrid');
+  grid.innerHTML = '';
+  const earned = BADGES.filter(b => earnedBadges[b.id]).length;
+  document.getElementById('badgeCount').textContent = `${earned} / ${BADGES.length}`;
+  for (const b of BADGES) {
+    const card = document.createElement('div');
+    const isEarned = !!earnedBadges[b.id];
+    card.className = 'badge-card ' + (isEarned ? 'earned' : 'locked');
+    card.innerHTML = `
+      <div class="badge-emoji">${isEarned ? b.emoji : '🔒'}</div>
+      <div class="badge-name">${b.name}</div>
+      <div class="badge-desc">${b.desc}</div>
+    `;
+    grid.appendChild(card);
+  }
 }
 
 // ── SOUND ENGINE (Web Audio API) ──
@@ -1601,6 +1688,7 @@ window.addEventListener('resize', () => {
 // ── INIT ──
 document.addEventListener('DOMContentLoaded', () => {
   loadProgress();
+  loadBadges();
   setupMenuBG();
   updateMenuStars();
   confetti.init();
