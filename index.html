@@ -173,6 +173,18 @@
   .badge-emoji { font-size:36px; margin-bottom:4px; }
   .badge-name { font-size:12px; font-weight:700; color:#212121; }
   .badge-desc { font-size:10px; color:#757575; margin-top:2px; }
+  #gallery { background:linear-gradient(135deg,#E3F2FD,#E0F4FF); padding:24px; gap:14px; }
+  .gallery-grid { display:flex; flex-direction:column; gap:12px; max-width:520px; margin:0 auto; width:100%; }
+  .gallery-card {
+    padding:16px; border-radius:16px; background:#fff; box-shadow:0 3px 12px rgba(0,0,0,.07);
+    display:flex; align-items:center; gap:14px;
+  }
+  .gallery-card.locked { opacity:.4; }
+  .gallery-icon { font-size:40px; flex-shrink:0; }
+  .gallery-info { flex:1; }
+  .gallery-name { font-size:15px; font-weight:700; color:#212121; }
+  .gallery-loc { font-size:11px; color:#757575; }
+  .gallery-fact { font-size:12px; color:#424242; margin-top:4px; line-height:1.4; }
   .buddy-wrap { position:absolute; bottom:8px; left:8px; display:flex; align-items:flex-end; gap:6px; z-index:15; pointer-events:none; transition:opacity .3s; }
   .buddy-char { font-size:36px; filter:drop-shadow(0 2px 4px rgba(0,0,0,.3)); animation:buddyBounce 2s ease-in-out infinite; }
   @keyframes buddyBounce { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-4px)} }
@@ -198,6 +210,7 @@
     <button class="btn btn-lg btn-orange" onclick="showScreen('worlds')" style="z-index:1;margin-top:8px;">START BUILDING</button>
     <button class="btn btn-md btn-purple" onclick="showScreen('badges')" style="z-index:1">🏆 Badges</button>
     <button class="btn btn-md btn-teal" onclick="startDailyChallenge()" style="z-index:1">📅 Daily Challenge</button>
+    <button class="btn btn-md btn-blue" onclick="showScreen('gallery')" style="z-index:1">🌍 Gallery</button>
     <div class="age-note">Built for curious minds ages 8+</div>
     <button class="btn btn-sm btn-gray" onclick="sfx.muted=!sfx.muted;this.textContent=sfx.muted?'🔇 Sound Off':'🔊 Sound On'" style="z-index:1;margin-top:4px">🔊 Sound On</button>
   </div>
@@ -290,6 +303,16 @@
       <div style="font-size:15px;font-weight:700;color:#212121;margin-bottom:6px" id="testingLabel">🚛 Testing your bridge...</div>
       <div class="progress-bar"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
     </div>
+  </div>
+
+  <!-- GALLERY -->
+  <div id="gallery" class="screen">
+    <div style="display:flex;align-items:center;justify-content:space-between">
+      <button class="btn btn-sm btn-gray" onclick="showScreen('menu')">← Back</button>
+    </div>
+    <h2 style="text-align:center;font-size:26px;font-weight:800;color:#212121">🌍 Real-World Structures</h2>
+    <p style="text-align:center;font-size:14px;color:#757575">Complete levels to unlock real engineering marvels!</p>
+    <div class="gallery-grid" id="galleryGrid"></div>
   </div>
 
   <!-- BADGES -->
@@ -442,6 +465,7 @@ function showScreen(id) {
   if (id==='worlds') renderWorlds();
   if (id==='levels') renderLevels();
   if (id==='badges') renderBadges();
+  if (id==='gallery') renderGallery();
 }
 
 function updateMenuStars() {
@@ -1429,6 +1453,16 @@ function showResult(success, stars) {
     document.getElementById('principleBody').textContent = l.principle;
   } else pc.style.display='none';
 
+  // Show real-world gallery card on success
+  const galleryItem = success ? GALLERY.find(g => g.world === currentWorld && g.level === currentLevel) : null;
+  const resultHintEl = document.getElementById('resultHint');
+  if (galleryItem && success) {
+    resultHintEl.innerHTML = `🌍 <b>Real World:</b> ${galleryItem.emoji} <b>${galleryItem.name}</b> (${galleryItem.loc}) — ${galleryItem.fact}`;
+    resultHintEl.style.color = '#1565C0';
+  } else {
+    resultHintEl.style.color = '#757575';
+  }
+
   const hk = starKey(currentWorld,currentLevel);
   const attempts = levelAttempts[hk]||0;
   document.getElementById('resultHint').textContent = success ? '' :
@@ -1466,13 +1500,54 @@ function showResult(success, stars) {
       sfx.play('badge');
       setTimeout(() => {
         const hint = document.getElementById('resultHint');
-        hint.innerHTML = `🏆 <b>NEW BADGE: ${newBadge.emoji} ${newBadge.name}!</b> — ${newBadge.desc}`;
+        hint.innerHTML = `🏆 <b>NEW BADGE: ${newBadge.emoji} ${newBadge.name}!</b> — ${newBadge.desc}<br>` + hint.innerHTML;
         hint.style.color = '#FF8F00';
       }, 600);
     }
   }
 
   showScreen('result');
+}
+
+// ── REAL-WORLD GALLERY ──
+const GALLERY = [
+  { world:0, level:0, emoji:'🌉', name:'Ponte Vecchio', loc:'Florence, Italy', fact:'Built in 1345, this medieval bridge has shops built right on top of it! It survived World War II.' },
+  { world:0, level:1, emoji:'🗼', name:'Eiffel Tower', loc:'Paris, France', fact:'Made of 18,038 iron pieces joined by 2.5 million rivets, all connected in triangles for strength.' },
+  { world:0, level:2, emoji:'🏛️', name:'Pont du Gard', loc:'France', fact:'A Roman aqueduct bridge with 3 tiers of arches, built 2,000 years ago without mortar!' },
+  { world:0, level:3, emoji:'🌁', name:'Golden Gate Bridge', loc:'San Francisco, USA', fact:'Its cables contain 80,000 miles of steel wire — enough to wrap around Earth 3 times!' },
+  { world:0, level:4, emoji:'🏔️', name:'Millau Viaduct', loc:'France', fact:'The tallest bridge in the world at 1,125 feet — taller than the Eiffel Tower!' },
+  { world:1, level:0, emoji:'🔺', name:'Great Pyramid of Giza', loc:'Egypt', fact:'Was the tallest structure for 3,800 years. Its wide base is the key to its stability.' },
+  { world:1, level:1, emoji:'🗼', name:'Tokyo Skytree', loc:'Japan', fact:'At 2,080 feet, it uses a central core and triangular cross-bracing to resist earthquakes.' },
+  { world:1, level:2, emoji:'💨', name:'Taipei 101', loc:'Taiwan', fact:'Has a 728-ton pendulum that swings to counteract wind! Reduces swaying by 40%.' },
+  { world:1, level:3, emoji:'🏙️', name:'Burj Khalifa', loc:'Dubai, UAE', fact:'At 2,717 feet, its Y-shaped floor plan helps resist wind forces from all directions.' },
+  { world:2, level:0, emoji:'🏛️', name:'The Colosseum', loc:'Rome, Italy', fact:'Built with 80 arched entrances, it could seat 50,000 spectators nearly 2,000 years ago.' },
+  { world:2, level:1, emoji:'🏺', name:'Aqueduct of Segovia', loc:'Spain', fact:'163 arches made of granite blocks with no mortar — gravity and precise cutting hold it together!' },
+  { world:2, level:2, emoji:'⛪', name:'Notre-Dame Cathedral', loc:'Paris, France', fact:'Its pointed Gothic arches allowed builders to reach unprecedented heights in the 12th century.' },
+  { world:2, level:3, emoji:'🌊', name:'Roman Aqueducts', loc:'Roman Empire', fact:'Stretched over 250 miles total, carrying 1 billion liters of water daily to Rome!' },
+  { world:3, level:0, emoji:'💡', name:"Edison's Lab", loc:'New Jersey, USA', fact:'Thomas Edison tested over 3,000 designs before perfecting the incandescent light bulb.' },
+  { world:3, level:1, emoji:'🔌', name:'Home Wiring', loc:'Everywhere', fact:'Your home uses parallel circuits so each device gets full voltage independently.' },
+  { world:3, level:2, emoji:'🧩', name:'Circuit Boards', loc:'Inside Electronics', fact:'Modern CPUs have billions of transistors routed around obstacles on chips smaller than a fingernail.' },
+  { world:3, level:3, emoji:'🌐', name:'US Power Grid', loc:'USA', fact:'The largest machine ever built: 450,000 miles of transmission lines powering 330 million people.' },
+];
+
+function renderGallery() {
+  const grid = document.getElementById('galleryGrid');
+  grid.innerHTML = '';
+  for (const g of GALLERY) {
+    const sk = starKey(g.world, g.level);
+    const unlocked = (earnedStars[sk] || 0) > 0;
+    const card = document.createElement('div');
+    card.className = 'gallery-card' + (unlocked ? '' : ' locked');
+    card.innerHTML = `
+      <div class="gallery-icon">${unlocked ? g.emoji : '🔒'}</div>
+      <div class="gallery-info">
+        <div class="gallery-name">${unlocked ? g.name : '???'}</div>
+        <div class="gallery-loc">${unlocked ? g.loc : 'Complete the level to unlock'}</div>
+        ${unlocked ? `<div class="gallery-fact">${g.fact}</div>` : ''}
+      </div>
+    `;
+    grid.appendChild(card);
+  }
 }
 
 // ── DAILY CHALLENGE ──
