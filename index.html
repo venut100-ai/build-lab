@@ -437,15 +437,15 @@ const WORLD_DATA = [
   },
   {
     id:'arches', name:'Arches', emoji:'🏛️', color:'#009688',
-    desc:'Master the ancient arch!', testType:'weight',
+    desc:'Span the gap with stone!', testType:'weight',
     btnClass:'btn-teal', testLabel:'⬇️ Applying the load...',
-    helpText:'<b>1.</b> Tap a dot to select it<br><b>2.</b> Tap another dot to place a beam<br><b>3.</b> Build an arch shape over the gap<br><b>4.</b> Hit <b>TEST IT!</b> to drop the weight!',
+    helpText:'<b>1.</b> Tap a dot to select it<br><b>2.</b> Tap another dot to place a beam<br><b>3.</b> Build a structure that spans the gap using angled beams<br><b>4.</b> Hit <b>TEST IT!</b> to drop the weight!',
     materials:{ stone:{ name:"Stone",color:"#8D6E63",stroke:"#5D4037",maxStress:0.40,width:9,emoji:"🪨",cost:1 }, marble:{ name:"Marble",color:"#B0BEC5",stroke:"#607D8B",maxStress:0.70,width:7,emoji:"💎",cost:2 }},
     levels:[
-      { id:1,name:"Stone Arch",subtitle:"The shape that holds!",description:"Build an arch over the gap. Arches push weight outward to the sides!",tip:"Curve your beams upward and over — an arch shape spreads weight to both supports.",fact:"Romans built arches everywhere — in bridges, aqueducts, and the Colosseum! Many still stand 2,000 years later.",emoji:"🏛️",gridW:7,gridH:5,cellSize:65,anchors:[[0,2],[0,3],[0,4],[1,2],[1,3],[1,4],[5,2],[5,3],[5,4],[6,2],[6,3],[6,4]],groundTiles:[[0,3],[0,4],[1,3],[1,4],[5,3],[5,4],[6,3],[6,4]],waterTiles:[[2,3],[2,4],[3,3],[3,4],[4,3],[4,4]],targetRow:0,par:10,testWeight:3.5,principle:"Arches convert downward force into outward thrust, spreading load to both supports!",principleIcon:"🏛️" },
-      { id:2,name:"Roman Arch",subtitle:"Build like the Romans!",description:"A wider gap needs a proper arch. Make it curve high to spread the weight.",tip:"The keystone (top-center beam) locks the arch together — make sure the top is strong!",fact:"Roman aqueducts used arches to carry water across valleys. The Pont du Gard in France is 160 feet tall!",emoji:"🏺",gridW:9,gridH:6,cellSize:58,anchors:[[0,2],[0,3],[0,4],[0,5],[1,2],[1,3],[1,4],[1,5],[7,2],[7,3],[7,4],[7,5],[8,2],[8,3],[8,4],[8,5]],groundTiles:[[0,3],[0,4],[0,5],[1,3],[1,4],[1,5],[7,3],[7,4],[7,5],[8,3],[8,4],[8,5]],waterTiles:[[2,3],[2,4],[2,5],[3,3],[3,4],[3,5],[4,3],[4,4],[4,5],[5,3],[5,4],[5,5],[6,3],[6,4],[6,5]],targetRow:0,par:14,testWeight:4.5,principle:"The keystone at the top of an arch locks everything together!",principleIcon:"🔑" },
-      { id:3,name:"Gothic Point",subtitle:"Reach to the heavens!",description:"Gothic arches are pointed and tall. Build one that can support a heavy load!",tip:"Pointed arches are even stronger than round ones — they direct weight more efficiently downward.",fact:"Gothic cathedrals like Notre-Dame use pointed arches and flying buttresses to reach incredible heights!",emoji:"⛪",gridW:9,gridH:7,cellSize:52,anchors:[[0,3],[0,4],[0,5],[0,6],[1,3],[1,4],[1,5],[1,6],[7,3],[7,4],[7,5],[7,6],[8,3],[8,4],[8,5],[8,6]],groundTiles:[[0,4],[0,5],[0,6],[1,4],[1,5],[1,6],[7,4],[7,5],[7,6],[8,4],[8,5],[8,6]],waterTiles:[[2,4],[2,5],[2,6],[3,4],[3,5],[3,6],[4,4],[4,5],[4,6],[5,4],[5,5],[5,6],[6,4],[6,5],[6,6]],targetRow:0,par:16,testWeight:5.0,principle:"Pointed arches direct forces more vertically, making them even stronger!",principleIcon:"⛪" },
-      { id:4,name:"The Aqueduct",subtitle:"Carry water across!",description:"Build a long arch structure with a pillar in the middle for extra support.",tip:"Use the middle pillar! Two smaller arches are stronger than one big one.",fact:"The Romans built aqueducts spanning hundreds of miles. The longest, the Zaghouan, was 82 miles!",emoji:"🌊",gridW:11,gridH:7,cellSize:48,anchors:[[0,3],[0,4],[0,5],[0,6],[1,3],[1,4],[1,5],[1,6],[9,3],[9,4],[9,5],[9,6],[10,3],[10,4],[10,5],[10,6],[5,5],[5,6]],groundTiles:[[0,4],[0,5],[0,6],[1,4],[1,5],[1,6],[9,4],[9,5],[9,6],[10,4],[10,5],[10,6],[5,5],[5,6]],waterTiles:[[2,4],[2,5],[2,6],[3,4],[3,5],[3,6],[4,4],[4,5],[4,6],[6,4],[6,5],[6,6],[7,4],[7,5],[7,6],[8,4],[8,5],[8,6]],targetRow:0,par:22,testWeight:5.5,principle:"Dividing a span into smaller arches with pillars multiplies the strength!",principleIcon:"🏗️" }
+      { id:1,name:"Stone Span",subtitle:"Bridge the gap with stone!",description:"Use angled beams from each side to meet in the middle and support the weight above.",tip:"Build angled beams upward from each support to meet at the top — like an upside-down V. This pushes weight outward to the strong supports.",fact:"Romans built arches from wedge-shaped stones, each one leaning on the next. Many still stand 2,000 years later!",emoji:"🏛️",gridW:7,gridH:5,cellSize:65,anchors:[[0,2],[0,3],[0,4],[1,2],[1,3],[1,4],[5,2],[5,3],[5,4],[6,2],[6,3],[6,4]],groundTiles:[[0,3],[0,4],[1,3],[1,4],[5,3],[5,4],[6,3],[6,4]],waterTiles:[[2,3],[2,4],[3,3],[3,4],[4,3],[4,4]],targetRow:0,par:10,testWeight:3.5,principle:"Angled beams push weight outward to the supports on each side — this is the arch principle!",principleIcon:"🏛️" },
+      { id:2,name:"Roman Span",subtitle:"Build like the Romans!",description:"A wider gap! Use angled beams from both sides to meet at a strong peak in the middle.",tip:"Where the angled beams meet at the top is the keystone area — make sure it has plenty of connections to stay locked together.",fact:"Roman aqueducts used arches to carry water across valleys. The Pont du Gard in France is 160 feet tall!",emoji:"🏺",gridW:9,gridH:6,cellSize:58,anchors:[[0,2],[0,3],[0,4],[0,5],[1,2],[1,3],[1,4],[1,5],[7,2],[7,3],[7,4],[7,5],[8,2],[8,3],[8,4],[8,5]],groundTiles:[[0,3],[0,4],[0,5],[1,3],[1,4],[1,5],[7,3],[7,4],[7,5],[8,3],[8,4],[8,5]],waterTiles:[[2,3],[2,4],[2,5],[3,3],[3,4],[3,5],[4,3],[4,4],[4,5],[5,3],[5,4],[5,5],[6,3],[6,4],[6,5]],targetRow:0,par:14,testWeight:4.5,principle:"The keystone area at the top locks the two sides together — it's the most important part!",principleIcon:"🔑" },
+      { id:3,name:"Gothic Point",subtitle:"Reach to the heavens!",description:"Build a tall, pointed structure that rises high to support a heavy load from above.",tip:"A tall pointed shape directs weight downward more efficiently. Build steep angles from both sides meeting at a high point!",fact:"Gothic cathedrals like Notre-Dame use pointed arches and flying buttresses to reach incredible heights!",emoji:"⛪",gridW:9,gridH:7,cellSize:52,anchors:[[0,3],[0,4],[0,5],[0,6],[1,3],[1,4],[1,5],[1,6],[7,3],[7,4],[7,5],[7,6],[8,3],[8,4],[8,5],[8,6]],groundTiles:[[0,4],[0,5],[0,6],[1,4],[1,5],[1,6],[7,4],[7,5],[7,6],[8,4],[8,5],[8,6]],waterTiles:[[2,4],[2,5],[2,6],[3,4],[3,5],[3,6],[4,4],[4,5],[4,6],[5,4],[5,5],[5,6],[6,4],[6,5],[6,6]],targetRow:0,par:16,testWeight:5.0,principle:"Steep, pointed shapes direct forces more vertically, making them even stronger!",principleIcon:"⛪" },
+      { id:4,name:"The Aqueduct",subtitle:"Carry water across!",description:"A long span! Use the middle pillar to build two smaller spans instead of one big one.",tip:"Use the middle pillar as an extra support! Two smaller spans are much stronger than one giant one.",fact:"The Romans built aqueducts spanning hundreds of miles. The longest, the Zaghouan, was 82 miles!",emoji:"🌊",gridW:11,gridH:7,cellSize:48,anchors:[[0,3],[0,4],[0,5],[0,6],[1,3],[1,4],[1,5],[1,6],[9,3],[9,4],[9,5],[9,6],[10,3],[10,4],[10,5],[10,6],[5,5],[5,6]],groundTiles:[[0,4],[0,5],[0,6],[1,4],[1,5],[1,6],[9,4],[9,5],[9,6],[10,4],[10,5],[10,6],[5,5],[5,6]],waterTiles:[[2,4],[2,5],[2,6],[3,4],[3,5],[3,6],[4,4],[4,5],[4,6],[6,4],[6,5],[6,6],[7,4],[7,5],[7,6],[8,4],[8,5],[8,6]],targetRow:0,par:22,testWeight:5.5,principle:"Dividing a long span into smaller sections with pillars multiplies the strength!",principleIcon:"🏗️" }
     ]
   },
   {
@@ -1210,19 +1210,19 @@ function analyzeFailure() {
     cause = "Not all bulbs are connected to a battery!";
     hint = "Make sure every bulb has a wire path leading back to a battery.";
   } else if (w.id==='arches') {
-    // Arch-specific hints — no triangle advice!
+    // Arch-specific hints — about angled beams, spans, and supports
     if (fewBeams) {
-      cause = "Not enough beams to form a proper arch shape!";
-      hint = "An arch needs a curved path of beams from one support to the other. Add more beams to complete the curve!";
+      cause = "Not enough beams to span the gap!";
+      hint = "Build angled beams from each support upward to meet in the middle. You need enough beams to make a solid path across!";
     } else if (allFirstMat && matKeys.length>1 && currentLevel>=2) {
       cause = `${w.materials[matKeys[0]].name} wasn't strong enough for this heavy load!`;
-      hint = `Try using ${w.materials[matKeys[1]].name} in the ${area} — especially at the top of your arch where the weight pushes hardest.`;
+      hint = `Try using ${w.materials[matKeys[1]].name} in the ${area} — especially where the beams meet at the top, where the weight pushes hardest.`;
     } else if (broken.length > allBeams*0.5) {
-      cause = "The arch shape collapsed — the curve wasn't spreading the weight to the supports!";
-      hint = `Make sure your beams form a smooth curve upward over the gap. The top of the arch (keystone area) must be well connected to both sides.`;
+      cause = "The structure collapsed — the weight wasn't being directed to the supports!";
+      hint = "Use angled beams from both sides that meet at the top. Each side should lean into the other so the weight pushes outward to the solid supports.";
     } else {
-      cause = `The ${area} of your arch couldn't handle the stress!`;
-      hint = `Strengthen the ${area}. An arch works by pushing weight outward — make sure both sides connect firmly to the supports.`;
+      cause = `The ${area} of your structure couldn't handle the stress!`;
+      hint = `Strengthen the ${area}. Add more connecting beams so the weight has multiple paths to reach the supports on each side.`;
     }
   } else if (w.id==='towers') {
     // Tower-specific hints
@@ -1938,7 +1938,7 @@ const buddy = {
     start: ["Let's build something awesome!", "Ready to engineer?", "I believe in you!", "Time to construct!"],
     fewBeams: ["Good start! Keep connecting dots!", "Nice! Try adding more beams.", "You're getting the hang of it!"],
     triangles: ["Try adding diagonal beams for triangles!", "Triangles are super strong!", "A diagonal here would help!"],
-    arches: ["Curve your beams up and over the gap!", "An arch pushes weight outward to the sides!", "Connect a smooth curve between the supports!"],
+    arches: ["Build angled beams from each side to meet in the middle!", "The weight should push outward to the strong supports!", "Connect both sides at the top — that's where it all locks together!"],
     towers: ["Build wide at the bottom for stability!", "Add X-bracing to stop it swaying!", "A wider base makes a stronger tower!"],
     manyBeams: ["Looking solid! Ready to test?", "Great structure! Let's see if it holds!", "That's some fine engineering!"],
     testing: ["Here we go... 🤞", "Fingers crossed!", "Let's see how it holds!"],
