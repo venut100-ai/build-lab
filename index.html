@@ -465,7 +465,7 @@ let circuitReached = new Set();
 function saveProgress() {
   try { localStorage.setItem('buildlab_stars', JSON.stringify(earnedStars)); } catch(e) {}
   try { localStorage.setItem('buildlab_attempts', JSON.stringify(levelAttempts)); } catch(e) {}
-  try { localStorage.setItem('buildlab_hints', JSON.stringify(lastHint)); } catch(e) {}
+  // Hints are session-only now — not persisted to avoid stale cross-world tips
 }
 function loadProgress() {
   try { earnedStars = JSON.parse(localStorage.getItem('buildlab_stars')) || {}; } catch(e) { earnedStars = {}; }
@@ -1563,8 +1563,11 @@ function showResult(success, stars) {
 
   const hk = starKey(currentWorld,currentLevel);
   const attempts = levelAttempts[hk]||0;
-  document.getElementById('resultHint').textContent = success ? '' :
-    (lastHint[hk] ? `💡 Remember: ${lastHint[hk]}` : "Don't worry — even real engineers test many designs! Try again.");
+  if (!success) {
+    document.getElementById('resultHint').textContent =
+      lastHint[hk] ? `💡 Remember: ${lastHint[hk]}` : "Don't worry — even real engineers test many designs! Try again.";
+    document.getElementById('resultHint').style.color = '#757575';
+  }
 
   const btns = document.getElementById('resultBtns');
   btns.innerHTML = '';
