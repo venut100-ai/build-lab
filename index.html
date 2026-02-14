@@ -38,6 +38,8 @@
   .btn-purple { background:linear-gradient(135deg,#B388FF,#651FFF); color:#fff; box-shadow:0 4px 18px #7C4DFF55,0 0 30px #7C4DFF22; }
   .btn-teal { background:linear-gradient(135deg,#26A69A,#00695C); color:#fff; box-shadow:0 4px 18px #00968855,0 0 30px #00968822; }
   .btn-pink { background:linear-gradient(135deg,#F06292,#AD1457); color:#fff; box-shadow:0 4px 18px #E91E6355,0 0 30px #E91E6322; }
+  .btn-amber { background:linear-gradient(135deg,#FFB300,#E65100); color:#fff; box-shadow:0 4px 18px #FF8F0055,0 0 30px #FF8F0022; }
+  .btn-cyan { background:linear-gradient(135deg,#00BCD4,#006064); color:#fff; box-shadow:0 4px 18px #00BCD455,0 0 30px #00BCD422; }
   .stars { display:flex; gap:4px; }
   .star { font-size:28px; transition:transform .3s; }
   .star.on { color:#FFD700; text-shadow:0 2px 12px rgba(255,215,0,.7),0 0 20px rgba(255,215,0,.3); transform:scale(1.15); }
@@ -429,10 +431,10 @@ const WORLD_DATA = [
     helpText:'<b>1.</b> Tap a dot to select it<br><b>2.</b> Tap another dot to place a beam<br><b>3.</b> Build UP from the ground to the target line<br><b>4.</b> Hit <b>TEST IT!</b> when ready',
     materials:{ wood:{ name:"Wood",color:"#A1887F",stroke:"#6D4C41",maxStress:0.35,width:8,emoji:"🪵",cost:1 }, steel:{ name:"Steel",color:"#78909C",stroke:"#455A64",maxStress:0.65,width:6,emoji:"🔩",cost:2 }},
     levels:[
-      { id:1,name:"First Tower",subtitle:"Build up!",description:"Stack beams upward to reach the red target line at the top!",tip:"A wide base makes your tower stable — like a pyramid!",fact:"The Great Pyramid of Giza was the tallest building for 3,800 years! Its wide base is the key.",emoji:"🗼",gridW:5,gridH:7,cellSize:60,anchors:[[0,5],[1,5],[2,5],[3,5],[4,5]],groundTiles:[[0,6],[1,6],[2,6],[3,6],[4,6]],waterTiles:[],targetRow:1,par:10,testWeight:2.0,principle:"A wide base distributes weight — that's why pyramids last forever!",principleIcon:"📐" },
-      { id:2,name:"Triangle Tower",subtitle:"Triangles make it strong!",description:"Build higher! You'll need triangles to keep it from wobbling.",tip:"Add diagonal beams between vertical ones to form triangles — they resist bending!",fact:"The Eiffel Tower uses triangles everywhere. That's why it can flex in the wind without breaking!",emoji:"🔺",gridW:5,gridH:8,cellSize:55,anchors:[[0,6],[1,6],[2,6],[3,6],[4,6]],groundTiles:[[0,7],[1,7],[2,7],[3,7],[4,7]],waterTiles:[],targetRow:1,par:14,testWeight:3.0,principle:"Triangles are rigid — they can't be squished out of shape like squares!",principleIcon:"🔺" },
-      { id:3,name:"Wind Blower",subtitle:"Can it handle the breeze?",description:"Wind pushes hard from the side! Build a tower that won't topple.",tip:"Cross-bracing (X shapes) helps resist sideways forces. Brace your tower!",fact:"Taipei 101 has a 728-ton pendulum inside that swings to fight wind! It reduces swaying by 40%.",emoji:"💨",gridW:6,gridH:8,cellSize:52,anchors:[[0,6],[1,6],[2,6],[3,6],[4,6],[5,6]],groundTiles:[[0,7],[1,7],[2,7],[3,7],[4,7],[5,7]],waterTiles:[],targetRow:1,par:16,testWeight:2.5,windForce:0.18,principle:"Cross-bracing helps structures resist horizontal forces like wind!",principleIcon:"💨" },
-      { id:4,name:"Sky Scraper",subtitle:"Reach for the sky!",description:"Build the tallest, strongest tower. Use everything you know!",tip:"Wide base + triangles + cross-bracing + strong materials = skyscraper!",fact:"The Burj Khalifa is 2,717 feet tall — over half a mile! Its Y-shape helps resist wind.",emoji:"🏙️",gridW:7,gridH:9,cellSize:48,anchors:[[0,7],[1,7],[2,7],[3,7],[4,7],[5,7],[6,7]],groundTiles:[[0,8],[1,8],[2,8],[3,8],[4,8],[5,8],[6,8]],waterTiles:[],targetRow:1,par:22,testWeight:4.0,windForce:0.1,principle:"Real skyscrapers combine a strong core, cross-bracing, and wide foundations!",principleIcon:"🏗️" }
+      { id:1,name:"Pyramid of Giza",subtitle:"Build like the pharaohs! 🔺",description:"The Great Pyramid stood for 4,500 years! Build a wide-based tower using ONLY diagonal beams — no horizontal allowed!",tip:"Diagonal beams form triangles, which are the strongest shape. The pyramid shape pushes weight outward and down!",fact:"The Great Pyramid contains 2.3 million stone blocks, each weighing 2.5 tons. Its wide base is why it still stands!",emoji:"🔺",gridW:5,gridH:7,cellSize:60,anchors:[[0,5],[1,5],[2,5],[3,5],[4,5]],groundTiles:[[0,6],[1,6],[2,6],[3,6],[4,6]],waterTiles:[],targetRow:1,par:10,testWeight:2.0,buildingShape:'pyramid',principle:"A wide base distributes weight evenly — that's why pyramids are nearly indestructible!",principleIcon:"🔺" },
+      { id:2,name:"Eiffel Tower",subtitle:"Iron lattice of Paris! 🗼",description:"Gustave Eiffel used TRIANGULAR lattice to make a tower from thin iron. Build with triangles — they're the secret!",tip:"The Eiffel Tower is 80% empty air! Triangular trusses make it incredibly strong with minimal material.",fact:"The Eiffel Tower uses 18,038 iron pieces joined by 2.5 million rivets. Triangles everywhere!",emoji:"🗼",gridW:5,gridH:8,cellSize:55,anchors:[[0,6],[1,6],[2,6],[3,6],[4,6]],groundTiles:[[0,7],[1,7],[2,7],[3,7],[4,7]],waterTiles:[],targetRow:1,par:14,testWeight:3.0,buildingShape:'eiffel',principle:"Triangles are rigid — they can't be squished like rectangles. That's why the Eiffel Tower uses them everywhere!",principleIcon:"🗼" },
+      { id:3,name:"Taipei 101",subtitle:"Tame the typhoon! 🌪️",description:"Taipei 101 faces powerful typhoons! Build a tower with cross-bracing to resist the fierce wind.",tip:"Cross-bracing (X shapes) fights sideways forces. Taipei 101 also has a giant pendulum that swings to absorb wind energy!",fact:"Taipei 101 has a 728-ton golden pendulum (tuned mass damper) that reduces swaying by 40%!",emoji:"🌪️",gridW:6,gridH:8,cellSize:52,anchors:[[0,6],[1,6],[2,6],[3,6],[4,6],[5,6]],groundTiles:[[0,7],[1,7],[2,7],[3,7],[4,7],[5,7]],waterTiles:[],targetRow:1,par:16,testWeight:2.5,windForce:0.18,buildingShape:'taipei',principle:"Cross-bracing and dampers help skyscrapers resist sideways forces like wind and earthquakes!",principleIcon:"🌪️" },
+      { id:4,name:"Burj Khalifa",subtitle:"World's tallest! 🏙️",description:"At 2,717 feet, the Burj Khalifa is the tallest building ever! Build tall using a BUDGET: Wood=1 coin, Steel=3 coins. Budget: 30 coins.",tip:"The Burj Khalifa uses a Y-shaped core for stability. Use steel only where stress is highest — be smart with your budget!",fact:"The Burj Khalifa took 6 years and 12,000 workers. Its Y-shape reduces wind force by 25%!",emoji:"🏙️",gridW:7,gridH:9,cellSize:48,anchors:[[0,7],[1,7],[2,7],[3,7],[4,7],[5,7],[6,7]],groundTiles:[[0,8],[1,8],[2,8],[3,8],[4,8],[5,8],[6,8]],waterTiles:[],targetRow:1,par:22,testWeight:4.0,windForce:0.1,budget:30,buildingShape:'burj',principle:"Real skyscrapers combine strong cores, cross-bracing, and smart material choices to reach incredible heights!",principleIcon:"🏙️" }
     ]
   },
   {
@@ -442,17 +444,17 @@ const WORLD_DATA = [
     helpText:'<b>1.</b> Tap the ghost stones to place them<br><b>2.</b> Place the <span style="color:#FFD600">★ keystone</span> last to lock the arch!<br><b>3.</b> Hit <b>TEST IT!</b> to drop the weight<br><b>4.</b> A complete arch pushes weight to the sides!',
     materials:{ stone:{ name:"Stone",color:"#8D6E63",stroke:"#5D4037",maxStress:0.40,width:9,emoji:"🪨",cost:1 }, marble:{ name:"Marble",color:"#B0BEC5",stroke:"#607D8B",maxStress:0.70,width:7,emoji:"💎",cost:2 }},
     levels:[
-      { id:1,name:"First Arch",subtitle:"The shape that holds!",description:"Place stone blocks along the curve to build your first arch. Each stone leans on the next!",tip:"Start from the supports and work toward the keystone at the top. The keystone locks the whole arch together!",fact:"Romans built arches from wedge-shaped stones called voussoirs. Many still stand 2,000 years later!",emoji:"🏛️",
-        archType:'roman',archCx:240,archCy:280,archRx:180,archRy:160,archSlots:7,archPillarW:50,archPillarH:100,canvasW:480,canvasH:380,testWeight:3.0,par:7,
+      { id:1,name:"First Arch",subtitle:"The shape that holds!",description:"Tap a stone to auto-fill the arch, then place the golden KEYSTONE to lock it!",tip:"The keystone at the very top is the most important stone — it wedges between the two sides and locks everything together!",fact:"Romans built arches from wedge-shaped stones called voussoirs. Many still stand 2,000 years later!",emoji:"🏛️",
+        archType:'roman',archCx:240,archCy:260,archRx:170,archRy:150,archSlots:7,archPillarW:50,archPillarH:100,canvasW:480,canvasH:370,testWeight:3.0,par:7,autoFill:true,
         principle:"Each stone in an arch pushes on its neighbor. The keystone at the top locks them all together!",principleIcon:"🏛️" },
-      { id:2,name:"Roman Gate",subtitle:"Build a grand entrance!",description:"A wider arch with more stones — the Romans used these for city gates and aqueducts!",tip:"More stones make a smoother, stronger curve. Don't forget the keystone!",fact:"Roman aqueducts carried water across valleys using rows of arches. The Pont du Gard is 160 feet tall!",emoji:"🏺",
-        archType:'roman',archCx:280,archCy:310,archRx:220,archRy:180,archSlots:9,archPillarW:55,archPillarH:120,canvasW:560,canvasH:430,testWeight:4.0,par:9,
+      { id:2,name:"Roman Gate",subtitle:"Build a grand entrance!",description:"A wider arch needs more stones. Tap to fill, then lock it with the keystone!",tip:"More stones make a smoother, stronger curve. The weight flows through every stone to the pillars!",fact:"Roman aqueducts carried water across valleys using rows of arches. The Pont du Gard is 160 feet tall!",emoji:"🏺",
+        archType:'roman',archCx:270,archCy:280,archRx:210,archRy:170,archSlots:9,archPillarW:55,archPillarH:110,canvasW:540,canvasH:400,testWeight:4.0,par:9,autoFill:true,
         principle:"A wider arch needs more stones but spreads weight over a bigger area — that's why aqueducts work!",principleIcon:"🔑" },
-      { id:3,name:"Gothic Point",subtitle:"Reach to the heavens!",description:"Gothic cathedrals used pointed arches — they're even stronger and taller than round ones!",tip:"A pointed arch directs weight downward more efficiently. The two curves meet at a sharp peak!",fact:"Gothic cathedrals like Notre-Dame use pointed arches and flying buttresses to reach incredible heights!",emoji:"⛪",
-        archType:'gothic',archCx:260,archCy:340,archRx:180,archRy:220,archSlots:9,archPillarW:55,archPillarH:110,canvasW:520,canvasH:450,testWeight:4.5,par:9,
+      { id:3,name:"Gothic Point",subtitle:"Reach to the heavens!",description:"Gothic cathedrals used POINTED arches — they're stronger AND taller than round ones! Build one!",tip:"A pointed arch directs weight downward more efficiently. Notice how the peak is sharp, not round!",fact:"Gothic cathedrals like Notre-Dame use pointed arches and flying buttresses to reach incredible heights!",emoji:"⛪",
+        archType:'gothic',archCx:260,archCy:300,archRx:170,archRy:200,archSlots:9,archPillarW:55,archPillarH:100,canvasW:520,canvasH:420,testWeight:4.5,par:9,autoFill:true,
         principle:"Pointed arches direct forces more straight down, letting builders reach incredible heights!",principleIcon:"⛪" },
-      { id:4,name:"The Aqueduct",subtitle:"Double arch power!",description:"Build TWO arches side by side on a shared pillar — just like a real Roman aqueduct!",tip:"The middle pillar supports both arches. Two smaller arches are stronger than one big one!",fact:"The Romans built aqueducts spanning hundreds of miles. The Aqueduct of Segovia has 163 arches!",emoji:"🌊",
-        archType:'double',archCx:200,archCx2:440,archCy:310,archRx:150,archRy:160,archSlots:7,archPillarW:45,archPillarH:110,canvasW:640,canvasH:420,testWeight:5.0,par:15,
+      { id:4,name:"The Aqueduct",subtitle:"Double arch power!",description:"Build TWO arches on a shared middle pillar — just like a real Roman aqueduct!",tip:"The middle pillar supports both arches. Two smaller arches are stronger than one big one!",fact:"The Romans built aqueducts spanning hundreds of miles. The Aqueduct of Segovia has 163 arches!",emoji:"🌊",
+        archType:'double',archCx:200,archCx2:430,archCy:280,archRx:140,archRy:150,archSlots:7,archPillarW:45,archPillarH:100,canvasW:630,canvasH:390,testWeight:5.0,par:15,autoFill:true,
         principle:"Dividing a long span into multiple arches with shared pillars multiplies the strength!",principleIcon:"🏗️" }
     ]
   },
@@ -467,6 +469,91 @@ const WORLD_DATA = [
       { id:2,name:"Two Lights",subtitle:"Power them both!",description:"One battery, two bulbs. Can you wire them both?",tip:"You can branch your wires — split the path to reach both bulbs!",fact:"In your house, most outlets run in parallel circuits. That way if one light goes out, the others stay on!",emoji:"💡💡",gridW:7,gridH:5,cellSize:65,anchors:[],groundTiles:[],waterTiles:[],sources:[[0,2]],targets:[[6,0],[6,4]],blocked:[],par:8,principle:"Parallel circuits let multiple devices share one power source!",principleIcon:"🔀" },
       { id:3,name:"Around the Block",subtitle:"Find a path!",description:"Obstacles block the direct route. Wire around them to reach the bulb!",tip:"You can't go through the red blocks — find a path around them!",fact:"Circuit board designers use clever routing to fit thousands of connections on a tiny chip!",emoji:"🧩",gridW:7,gridH:5,cellSize:65,anchors:[],groundTiles:[],waterTiles:[],sources:[[0,2]],targets:[[6,2]],blocked:[[2,1],[2,2],[2,3],[4,1],[4,2],[4,3]],par:8,principle:"Engineers route circuits around obstacles — just like solving a maze!",principleIcon:"🧩" },
       { id:4,name:"Power Grid",subtitle:"Light up the city!",description:"Multiple batteries, multiple bulbs. Design an efficient power grid!",tip:"Plan your routes carefully — try to share wires between different paths.",fact:"The US power grid is the largest machine ever built, with over 450,000 miles of transmission lines!",emoji:"🏙️",gridW:8,gridH:6,cellSize:58,anchors:[],groundTiles:[],waterTiles:[],sources:[[0,1],[0,4]],targets:[[7,0],[7,3],[7,5]],blocked:[[3,0],[3,1],[3,4],[3,5],[5,1],[5,2],[5,3],[5,4]],par:12,principle:"Smart grid design minimizes wires while keeping everything powered!",principleIcon:"🌐" }
+    ]
+  },
+  {
+    id:'castle', name:'Castle', emoji:'🏰', color:'#FF8F00',
+    desc:'Build a mighty fortress!', testType:'castle',
+    btnClass:'btn-amber', testLabel:'⬇️ Testing the castle...',
+    helpText:'<b>Castle</b> combines everything you know!<br>Build arches, towers, and wire circuits.<br>Each level tests different skills!',
+    materials:{ wood:{ name:"Wood",color:"#A1887F",stroke:"#6D4C41",maxStress:0.35,width:8,emoji:"🪵",cost:1 }, steel:{ name:"Steel",color:"#78909C",stroke:"#455A64",maxStress:0.65,width:6,emoji:"🔩",cost:2 }, stone:{ name:"Stone",color:"#8D6E63",stroke:"#5D4037",maxStress:0.50,width:9,emoji:"🪨",cost:1 }},
+    levels:[
+      { id:1,name:"Castle Gate",subtitle:"Build the grand entrance! 🏰",
+        description:"Every castle needs a strong gate! Build a stone arch doorway, then a weight drops to test if it holds. Choose wisely: round or pointed arch?",
+        tip:"Pointed arches direct weight downward more efficiently — they're stronger for heavy loads!",
+        fact:"Medieval castle gates often used portcullis (heavy sliding doors) protected by pointed Gothic arches!",
+        emoji:"🚪",castlePhase:'arch',
+        archType:'gothic',archCx:260,archCy:280,archRx:180,archRy:180,archSlots:9,archPillarW:55,archPillarH:100,canvasW:520,canvasH:400,testWeight:5.0,par:9,autoFill:true,
+        principle:"Gothic pointed arches are stronger than round ones for heavy loads — that's why castles used them!",principleIcon:"🏰" },
+      { id:2,name:"Watchtower",subtitle:"See the enemy coming! 🗼",
+        description:"Build a tall watchtower on the castle wall! Wind howls across the battlements — brace it well! Budget: Wood=1, Steel=3, Total: 25 coins.",
+        tip:"A watchtower needs a wide base AND cross-bracing. Wind is your biggest enemy up high!",
+        fact:"Medieval watchtowers could see enemies 20 miles away! The Tower of London's White Tower is 90 feet tall.",
+        emoji:"🗼",castlePhase:'tower',
+        gridW:5,gridH:8,cellSize:55,anchors:[[0,6],[1,6],[2,6],[3,6],[4,6]],groundTiles:[[0,7],[1,7],[2,7],[3,7],[4,7]],waterTiles:[],
+        targetRow:1,par:14,testWeight:3.0,windForce:0.2,budget:25,
+        principle:"Watchtowers need wide bases AND cross-bracing to resist wind at great heights!",principleIcon:"🗼" },
+      { id:3,name:"Great Hall",subtitle:"Light up the feast! ⚡",
+        description:"Wire up the torches in the Great Hall! Connect the generator to all the torch sconces. Plan your wire paths carefully!",
+        tip:"Like medieval torch lighting, you need efficient paths. Share wire routes where possible!",
+        fact:"Medieval great halls could seat hundreds! They used torches, candles, and fireplaces for light and warmth.",
+        emoji:"🔥",castlePhase:'circuit',
+        gridW:7,gridH:5,cellSize:65,anchors:[],groundTiles:[],waterTiles:[],
+        sources:[[0,2]],targets:[[6,0],[6,2],[6,4]],blocked:[[2,0],[2,1],[4,3],[4,4]],par:10,
+        principle:"Efficient wiring lights up more with less — medieval engineers had to plan torch placement carefully!",principleIcon:"🔥" },
+      { id:4,name:"The Full Castle",subtitle:"The ultimate challenge! 👑",
+        description:"Build the tallest, strongest castle keep! Use all your engineering knowledge. Wind, weight, and a tight budget: 35 coins!",
+        tip:"Combine everything: wide base like a pyramid, triangles like the Eiffel Tower, and cross-bracing for wind!",
+        fact:"The largest medieval castle is Malbork Castle in Poland — it covers 52 acres and took 230 years to build!",
+        emoji:"👑",castlePhase:'tower',
+        gridW:7,gridH:9,cellSize:48,anchors:[[0,7],[1,7],[2,7],[3,7],[4,7],[5,7],[6,7]],groundTiles:[[0,8],[1,8],[2,8],[3,8],[4,8],[5,8],[6,8]],waterTiles:[],
+        targetRow:1,par:24,testWeight:5.0,windForce:0.22,budget:35,buildingShape:'burj',
+        principle:"Master engineers combine every principle: strong base, triangular bracing, smart materials, and efficient design!",principleIcon:"👑" }
+    ]
+  },
+  {
+    id:'flying', name:'Flying', emoji:'✈️', color:'#00BCD4',
+    desc:'Master the physics of flight!', testType:'flight',
+    btnClass:'btn-cyan', testLabel:'✈️ Launching flight test...',
+    helpText:'<b>1.</b> Build a wing shape by connecting dots<br><b>2.</b> Angled beams create LIFT (↗ not →)<br><b>3.</b> Wider wings = more lift!<br><b>4.</b> Hit <b>TEST IT!</b> to launch!',
+    materials:{ aluminum:{ name:"Aluminum",color:"#B0BEC5",stroke:"#78909C",maxStress:0.45,width:7,emoji:"🔧",cost:1 }, carbon:{ name:"Carbon Fiber",color:"#37474F",stroke:"#263238",maxStress:0.80,width:5,emoji:"⚡",cost:2 }},
+    levels:[
+      { id:1,name:"First Flight",subtitle:"The Wright way! ✈️",
+        description:"The Wright Brothers proved that curved wings create lift! Build a wing shape that's wider on top and angled upward. The wind will do the rest!",
+        tip:"Angle your beams slightly upward (↗) — flat beams don't create lift! The curve of a wing pushes air down, and the reaction pushes YOU up!",
+        fact:"The Wright Brothers' first flight in 1903 lasted just 12 seconds and covered 120 feet — shorter than a Boeing 747!",
+        emoji:"🛩️",gridW:7,gridH:5,cellSize:65,
+        anchors:[[0,2],[0,3],[0,4],[1,4],[2,4],[3,4],[4,4],[5,4],[6,4]],
+        groundTiles:[],waterTiles:[],
+        flightTarget:100,windSpeed:1.0,par:8,
+        principle:"Wings create lift because curved tops make air move faster — reducing pressure above and pushing the wing UP! (Bernoulli's principle)",principleIcon:"✈️" },
+      { id:2,name:"Glider Design",subtitle:"Soar without an engine! 🪂",
+        description:"Design a glider with long wings! Longer wingspan = more lift. But watch out — too many beams add weight and drag!",
+        tip:"Long, thin wings are best for gliders. Every extra beam adds weight — keep it light but strong!",
+        fact:"The longest glider flight lasted over 76 hours! Gliders use rising warm air (thermals) to stay aloft for days.",
+        emoji:"🪂",gridW:9,gridH:5,cellSize:55,
+        anchors:[[0,2],[0,3],[0,4],[1,4],[2,4],[3,4],[4,4],[5,4],[6,4],[7,4],[8,4]],
+        groundTiles:[],waterTiles:[],
+        flightTarget:200,windSpeed:1.2,par:12,
+        principle:"Longer wings create more lift but add weight. Engineers balance wingspan vs. weight — it's called aspect ratio!",principleIcon:"🪂" },
+      { id:3,name:"Headwind Hero",subtitle:"Fight the storm! 🌪️",
+        description:"A strong headwind is blowing! Build a streamlined shape — bulky structures create drag and slow you down!",
+        tip:"Streamlined shapes (like a teardrop) cut through air. Avoid flat surfaces facing the wind — they create drag!",
+        fact:"A golf ball's dimples reduce drag by creating a thin layer of turbulent air. Airplanes use a similar trick with vortex generators!",
+        emoji:"🌪️",gridW:8,gridH:5,cellSize:58,
+        anchors:[[0,2],[0,3],[0,4],[1,4],[2,4],[3,4],[4,4],[5,4],[6,4],[7,4]],
+        groundTiles:[],waterTiles:[],
+        flightTarget:150,windSpeed:2.0,dragMult:1.5,par:10,
+        principle:"Drag fights against motion. Streamlined shapes minimize drag — that's why planes are pointy, not flat!",principleIcon:"🌪️" },
+      { id:4,name:"Supersonic Dream",subtitle:"Break the sound barrier! 🚀",
+        description:"Design the ultimate aircraft! You need maximum lift with minimum drag. Budget: Aluminum=1, Carbon Fiber=3, Total: 28 coins.",
+        tip:"Swept-back wings reduce drag at high speeds. Use carbon fiber for the main wing spars — they're lighter AND stronger!",
+        fact:"The SR-71 Blackbird flew at Mach 3.3 (2,200 mph). Its titanium body would expand 6 inches from friction heat!",
+        emoji:"🚀",gridW:9,gridH:6,cellSize:52,
+        anchors:[[0,3],[0,4],[0,5],[1,5],[2,5],[3,5],[4,5],[5,5],[6,5],[7,5],[8,5]],
+        groundTiles:[],waterTiles:[],
+        flightTarget:300,windSpeed:2.5,dragMult:2.0,budget:28,par:14,
+        principle:"At supersonic speeds, swept wings and lightweight materials are essential. Every gram of weight and every bit of drag matters!",principleIcon:"🚀" }
     ]
   }
 ];
@@ -496,6 +583,7 @@ let levelAttempts = {};
 let weightObj = null;
 let circuitParticles = [];
 let circuitReached = new Set();
+let flightState = null;
 
 // ── PERSISTENCE ──
 function saveProgress() {
@@ -618,16 +706,17 @@ function startGame() {
   isTesting = false; vehicle = null; weightObj = null;
   failurePhase = null; failureData = null; whatIfOverrides = null;
   circuitParticles = []; circuitReached = new Set();
-  archState = null;
+  archState = null; flightState = null;
 
   // Set default material
   const matKeys = Object.keys(w.materials);
   material = matKeys[0];
 
-  // Create nodes
-  if (w.testType === 'arch') {
+  // Create nodes — castle levels route based on castlePhase
+  const effectiveType = (w.testType==='castle') ? l.castlePhase : w.testType;
+  if (effectiveType === 'arch') {
     startArchGame();
-  } else if (w.testType === 'circuit') {
+  } else if (effectiveType === 'circuit') {
     const blockedSet = new Set((l.blocked||[]).map(([x,y])=>`${x},${y}`));
     const srcSet = new Set((l.sources||[]).map(([x,y])=>`${x},${y}`));
     const tgtSet = new Set((l.targets||[]).map(([x,y])=>`${x},${y}`));
@@ -677,9 +766,11 @@ function startGame() {
 
   // Update test button text
   const testBtn = document.getElementById('testBtn');
-  if (w.testType === 'circuit') testBtn.innerHTML = 'TEST IT! ⚡';
-  else if (w.testType === 'arch') testBtn.innerHTML = 'TEST IT! ⬇️';
-  else if (w.testType === 'weight') testBtn.innerHTML = 'TEST IT! ⬇️';
+  const eType = (w.testType==='castle') ? l.castlePhase : w.testType;
+  if (eType === 'circuit') testBtn.innerHTML = 'TEST IT! ⚡';
+  else if (eType === 'arch') testBtn.innerHTML = 'TEST IT! ⬇️';
+  else if (eType === 'flight') testBtn.innerHTML = 'LAUNCH! ✈️';
+  else if (eType === 'weight' || eType === 'tower') testBtn.innerHTML = 'TEST IT! ⬇️';
   else testBtn.innerHTML = 'TEST IT! 🚛';
 
   buddy.startTips();
@@ -697,10 +788,11 @@ function resizeCanvas() {
   const w = getWorld();
   const wrap = document.getElementById('canvasWrap');
   let cw, ch;
-  if (w.testType==='arch') {
+  const eType = (w.testType==='castle') ? l.castlePhase : w.testType;
+  if (eType==='arch') {
     cw = l.canvasW; ch = l.canvasH;
   } else {
-    const pad = w.testType==='circuit' ? 120 : 80;
+    const pad = eType==='circuit' ? 120 : 80;
     cw = l.gridW * l.cellSize + pad;
     ch = l.gridH * l.cellSize + pad;
   }
@@ -718,7 +810,9 @@ function updateMaterialBtns() {
   const w = getWorld();
   const container = document.getElementById('matBtns');
   container.innerHTML = '';
-  if (w.testType==='arch' && archState) {
+  const l = getLevel();
+  const eType = (w.testType==='castle') ? (l ? l.castlePhase : w.testType) : w.testType;
+  if (eType==='arch' && archState) {
     // Show material selector for arch stones
     for (const [key, mat] of Object.entries(w.materials)) {
       const btn = document.createElement('button');
@@ -742,11 +836,17 @@ function updateGameUI() {
   const l = getLevel();
   document.getElementById('gameTitle').textContent = l.name;
   const w = getWorld();
-  if (w.testType==='arch' && archState) {
+  const eType = (w.testType==='castle') ? l.castlePhase : w.testType;
+  if (eType==='arch' && archState) {
     updateArchUI();
   } else {
-    const beamWord = w.testType==='circuit' ? 'Wires' : 'Beams';
-    document.getElementById('gameMeta').textContent = `${beamWord}: ${gameBeams.length} | Par: ${l.par}`;
+    const beamWord = eType==='circuit' ? 'Wires' : 'Beams';
+    let meta = `${beamWord}: ${gameBeams.length} | Par: ${l.par}`;
+    if (l.budget) {
+      const spent = gameBeams.reduce((s,b) => s + ((getWorld().materials[b.material]||{}).cost||1), 0);
+      meta += ` | 💰 ${l.budget - spent}/${l.budget}`;
+    }
+    document.getElementById('gameMeta').textContent = meta;
     document.getElementById('testBtn').disabled = gameBeams.length === 0;
   }
 }
@@ -769,7 +869,7 @@ function exitGame() {
   if (animId) cancelAnimationFrame(animId);
   vehicle=null; weightObj=null; buddy.stop();
   window._isDailyChallenge = false; window._dailyLevel = null;
-  h2hState = null; coopState = null; archState = null; hidePlayerBanner();
+  h2hState = null; coopState = null; archState = null; flightState = null; hidePlayerBanner();
   showScreen('levels');
 }
 
@@ -783,7 +883,7 @@ function exitGame() {
       e.preventDefault();
       const pt = canvasPoint(e);
       if (!pt) return;
-      // Arch mode input
+      // Arch mode input (including castle arch levels)
       if (archState && !archState.testPhase) {
         const now = Date.now();
         if (now - lastTap < 350) { handleArchRemove(pt); lastTap=0; return; }
@@ -807,6 +907,12 @@ function exitGame() {
         if (!exists) {
           const gdx=Math.abs(closest.gx-selectedNode.gx), gdy=Math.abs(closest.gy-selectedNode.gy);
           if (gdx<=2 && gdy<=2 && !(gdx===0&&gdy===0)) {
+            const lvl = getLevel();
+            if (lvl.budget) {
+              const cost = (getWorld().materials[material]||{}).cost||1;
+              const spent = gameBeams.reduce((s,b) => s + ((getWorld().materials[b.material]||{}).cost||1), 0);
+              if (spent + cost > lvl.budget) { selectedNode=null; updateGameUI(); drawGame(); return; }
+            }
             const dx=closest.x-selectedNode.x, dy=closest.y-selectedNode.y;
             gameBeams.push({ a:selectedNode, b:closest, material, restLength:Math.sqrt(dx*dx+dy*dy), stress:0, broken:false });
             sfx.play('place');
@@ -844,10 +950,143 @@ function removeBeamAt(pt) {
 function drawGame() {
   if (!ctx) return;
   const w = getWorld();
-  if (w.testType==='circuit') drawCircuitWorld();
+  const l = getLevel();
+  const eType = (w.testType==='castle') ? l.castlePhase : w.testType;
+  if (eType==='circuit') drawCircuitWorld();
+  else if (eType==='arch' || (archState && !archState.testPhase)) drawCastleArchWorld();
+  else if (w.id==='flying') drawFlyingWorld();
   else if (w.id==='towers') drawTowerWorld();
-  else if (w.id==='arches') drawArchWorld();
+  else if (w.id==='castle') drawCastleWorld();
+  else if (w.id==='arches') drawCastleArchWorld();
   else drawBridgeWorld();
+}
+
+function drawCastleArchWorld() { drawArchWorld(); }
+
+function drawCastleWorld() {
+  const l = getLevel();
+  const W=canvas.width, H=canvas.height;
+  // Night sky gradient for castle atmosphere
+  const sg=ctx.createLinearGradient(0,0,0,H);
+  sg.addColorStop(0,'#1a1a2e'); sg.addColorStop(0.4,'#16213e'); sg.addColorStop(0.7,'#2c3e50'); sg.addColorStop(1,'#4a6741');
+  ctx.fillStyle=sg; ctx.fillRect(0,0,W,H);
+  // Stars
+  ctx.fillStyle='#fff';
+  for (let i=0;i<30;i++) {
+    const sx=(Math.sin(i*127.1+42)*0.5+0.5)*W;
+    const sy=(Math.sin(i*311.7+13)*0.5+0.5)*H*0.4;
+    const sr=Math.random()*1.5+0.5;
+    ctx.globalAlpha=0.3+Math.random()*0.5;
+    ctx.beginPath(); ctx.arc(sx,sy,sr,0,Math.PI*2); ctx.fill();
+  }
+  ctx.globalAlpha=1;
+  // Moon
+  ctx.fillStyle='#f5f5dc'; ctx.beginPath(); ctx.arc(W-60,50,25,0,Math.PI*2); ctx.fill();
+  ctx.fillStyle='#1a1a2e'; ctx.beginPath(); ctx.arc(W-50,45,22,0,Math.PI*2); ctx.fill();
+  // Ground with stone wall texture
+  drawGround(l);
+  // Castle wall outlines on ground
+  const groundY = 40 + (l.gridH-1)*l.cellSize;
+  ctx.fillStyle='rgba(139,119,101,0.3)';
+  ctx.fillRect(0,groundY,W,H-groundY);
+  // Crenellations
+  ctx.fillStyle='rgba(139,119,101,0.2)';
+  for (let x=0;x<W;x+=20) {
+    if (Math.floor(x/20)%2===0) ctx.fillRect(x,groundY-10,18,10);
+  }
+  // Building silhouette if applicable
+  if (l.buildingShape) drawBuildingSilhouette(l);
+  // Target line
+  if (l.targetRow !== undefined) {
+    const ty = 40 + l.targetRow * l.cellSize;
+    ctx.setLineDash([8,6]);
+    ctx.strokeStyle='#FFD700'; ctx.lineWidth=3;
+    ctx.beginPath(); ctx.moveTo(20,ty); ctx.lineTo(W-20,ty); ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.fillStyle='#FFD700'; ctx.font='bold 13px sans-serif'; ctx.textAlign='right';
+    ctx.fillText('TARGET ▸',W-25,ty-6);
+  }
+  // Budget display
+  if (l.budget) {
+    const spent = gameBeams.reduce((s,b) => s + ((getWorld().materials[b.material]||{}).cost||1), 0);
+    const remaining = l.budget - spent;
+    ctx.fillStyle = remaining > 10 ? 'rgba(76,175,80,0.9)' : remaining > 5 ? 'rgba(255,193,7,0.95)' : 'rgba(244,67,54,0.95)';
+    ctx.font='bold 14px sans-serif'; ctx.textAlign='left';
+    ctx.fillText(`💰 Budget: ${remaining}/${l.budget}`,12,20);
+  }
+  drawBeamsAndNodes();
+  if (weightObj && weightObj.active) drawWeight();
+  // Wind indicator
+  if (l.windForce && isTesting) {
+    ctx.fillStyle='rgba(100,181,246,0.4)';
+    ctx.font='bold 24px sans-serif'; ctx.textAlign='center';
+    const windX = 30, windY = H/2;
+    for (let i=0;i<3;i++) ctx.fillText('→',windX,windY-30+i*30);
+    ctx.font='bold 11px sans-serif'; ctx.fillText('WIND',windX+5,windY+50);
+  }
+  if (failurePhase==='slowmo') drawFailureHighlights();
+}
+
+function drawFlyingWorld() {
+  const l = getLevel();
+  const W=canvas.width, H=canvas.height;
+  // Sky gradient (high altitude blue)
+  const sg=ctx.createLinearGradient(0,0,0,H);
+  sg.addColorStop(0,'#0D47A1'); sg.addColorStop(0.3,'#1976D2'); sg.addColorStop(0.6,'#42A5F5'); sg.addColorStop(1,'#90CAF9');
+  ctx.fillStyle=sg; ctx.fillRect(0,0,W,H);
+  // Clouds moving past
+  const t = Date.now()*0.001;
+  ctx.fillStyle='rgba(255,255,255,0.15)';
+  for (let i=0;i<8;i++) {
+    const cx = ((t*30*(0.5+i*0.2) + i*137) % (W+100)) - 50;
+    const cy = 30 + (i%3)*H/4 + Math.sin(i*2.7)*30;
+    ctx.beginPath(); ctx.ellipse(cx,cy,40+i*5,15+i*2,0,0,Math.PI*2); ctx.fill();
+  }
+  // Wind arrows showing airflow direction
+  ctx.save();
+  ctx.globalAlpha = 0.2;
+  ctx.strokeStyle='#fff'; ctx.lineWidth=1.5;
+  for (let i=0;i<6;i++) {
+    const ax = ((t*60 + i*80) % (W+40)) - 20;
+    const ay = 40 + i*(H-80)/5;
+    ctx.beginPath(); ctx.moveTo(ax,ay); ctx.lineTo(ax+30,ay);
+    ctx.moveTo(ax+25,ay-5); ctx.lineTo(ax+30,ay); ctx.lineTo(ax+25,ay+5);
+    ctx.stroke();
+  }
+  ctx.restore();
+  // Flight altitude meter
+  ctx.fillStyle='rgba(0,0,0,0.4)';
+  roundRect(ctx,W-45,30,30,H-60,8); ctx.fill();
+  ctx.fillStyle='rgba(76,175,80,0.6)';
+  const targetPct = Math.min(1, (flightState ? flightState.altitude : 0) / l.flightTarget);
+  const meterH = (H-70)*targetPct;
+  ctx.fillRect(W-42,H-33-meterH,24,meterH);
+  // Target line on meter
+  ctx.strokeStyle='#FFD700'; ctx.lineWidth=2; ctx.setLineDash([4,3]);
+  const targetY = H-33-(H-70);
+  ctx.beginPath(); ctx.moveTo(W-45,targetY); ctx.lineTo(W-12,targetY); ctx.stroke();
+  ctx.setLineDash([]);
+  ctx.fillStyle='#FFD700'; ctx.font='bold 10px sans-serif'; ctx.textAlign='right';
+  ctx.fillText(`${l.flightTarget}ft`,W-48,targetY+4);
+  // Flight info
+  ctx.fillStyle='rgba(0,0,0,0.5)';
+  roundRect(ctx,8,8,150,50,8); ctx.fill();
+  ctx.fillStyle='#fff'; ctx.font='bold 12px sans-serif'; ctx.textAlign='left';
+  const lift = flightState ? flightState.lift.toFixed(1) : '0.0';
+  const drag = flightState ? flightState.drag.toFixed(1) : '0.0';
+  ctx.fillText(`↑ Lift: ${lift}`,16,26);
+  ctx.fillText(`← Drag: ${drag}`,16,44);
+  // Draw beams and nodes
+  drawBeamsAndNodes();
+  // Flying aircraft animation during test
+  if (flightState && flightState.active) {
+    const pulse = 0.5+0.5*Math.sin(Date.now()*0.005);
+    ctx.fillStyle=`rgba(76,175,80,${0.2+pulse*0.2})`;
+    ctx.beginPath(); ctx.arc(W/2,H/2-flightState.altitude*0.3,60,0,Math.PI*2); ctx.fill();
+    ctx.fillStyle='#fff'; ctx.font='bold 16px sans-serif'; ctx.textAlign='center';
+    ctx.fillText(`${Math.floor(flightState.altitude)} ft`,W/2,H/2-flightState.altitude*0.3-10);
+  }
+  if (failurePhase==='slowmo') drawFailureHighlights();
 }
 
 function drawBridgeWorld() {
@@ -883,6 +1122,8 @@ function drawTowerWorld() {
   drawClouds(W);
   // Ground
   drawGround(l);
+  // Draw building silhouette hint
+  if (l.buildingShape) drawBuildingSilhouette(l);
   // Target line
   if (l.targetRow !== undefined) {
     const ty = 40 + l.targetRow * l.cellSize;
@@ -892,6 +1133,14 @@ function drawTowerWorld() {
     ctx.setLineDash([]);
     ctx.fillStyle='#F44336'; ctx.font='bold 13px sans-serif'; ctx.textAlign='right';
     ctx.fillText('TARGET ▸',W-25,ty-6);
+  }
+  // Budget display
+  if (l.budget) {
+    const spent = gameBeams.reduce((s,b) => s + ((getWorld().materials[b.material]||{}).cost||1), 0);
+    const remaining = l.budget - spent;
+    ctx.fillStyle = remaining > 10 ? 'rgba(76,175,80,0.8)' : remaining > 5 ? 'rgba(255,193,7,0.9)' : 'rgba(244,67,54,0.9)';
+    ctx.font='bold 14px sans-serif'; ctx.textAlign='left';
+    ctx.fillText(`💰 Budget: ${remaining}/${l.budget}`,12,20);
   }
   drawBeamsAndNodes();
   if (weightObj && weightObj.active) drawWeight();
@@ -904,6 +1153,60 @@ function drawTowerWorld() {
     ctx.font='bold 11px sans-serif'; ctx.fillText('WIND',windX+5,windY+50);
   }
   if (failurePhase==='slowmo') drawFailureHighlights();
+}
+
+function drawBuildingSilhouette(l) {
+  const cs=l.cellSize, ox=40, oy=40;
+  ctx.save();
+  ctx.globalAlpha = 0.08;
+  ctx.fillStyle = '#3F51B5';
+  ctx.strokeStyle = 'rgba(63,81,181,0.15)';
+  ctx.lineWidth = 2;
+  const gw=l.gridW, gh=l.gridH;
+  const bx = ox + cs*(gw-1)/2; // center x
+  const groundY = oy + (gh-2)*cs;
+  const topY = oy + l.targetRow*cs;
+  if (l.buildingShape === 'pyramid') {
+    ctx.beginPath();
+    ctx.moveTo(bx, topY);
+    ctx.lineTo(ox - cs/2, groundY);
+    ctx.lineTo(ox + (gw-1)*cs + cs/2, groundY);
+    ctx.closePath();
+    ctx.fill(); ctx.stroke();
+  } else if (l.buildingShape === 'eiffel') {
+    const w1 = cs*0.5, w2 = cs*2, w3 = cs*(gw/2);
+    const h = groundY - topY;
+    ctx.beginPath();
+    ctx.moveTo(bx - w1, topY);
+    ctx.lineTo(bx + w1, topY);
+    ctx.quadraticCurveTo(bx + w2, topY + h*0.5, bx + w3, groundY);
+    ctx.lineTo(bx - w3, groundY);
+    ctx.quadraticCurveTo(bx - w2, topY + h*0.5, bx - w1, topY);
+    ctx.closePath();
+    ctx.fill(); ctx.stroke();
+  } else if (l.buildingShape === 'taipei') {
+    const sections = 8;
+    const h = groundY - topY;
+    const secH = h / sections;
+    ctx.beginPath();
+    for (let i=0; i<sections; i++) {
+      const w = cs*(1 + (sections-i)*0.25);
+      const y1 = topY + i*secH, y2 = topY + (i+1)*secH;
+      ctx.rect(bx-w, y1, w*2, secH-2);
+    }
+    ctx.fill(); ctx.stroke();
+  } else if (l.buildingShape === 'burj') {
+    const h = groundY - topY;
+    ctx.beginPath();
+    ctx.moveTo(bx, topY);
+    ctx.lineTo(bx - cs*0.3, topY + h*0.15);
+    ctx.quadraticCurveTo(bx - cs*2.5, groundY, bx - cs*3, groundY);
+    ctx.lineTo(bx + cs*3, groundY);
+    ctx.quadraticCurveTo(bx + cs*2.5, groundY, bx + cs*0.3, topY + h*0.15);
+    ctx.closePath();
+    ctx.fill(); ctx.stroke();
+  }
+  ctx.restore();
 }
 
 function drawCircuitWorld() {
@@ -1102,18 +1405,45 @@ function drawWeight() {
 function drawFailureHighlights() {
   if (!failureData) return;
   const pulse = 0.5 + 0.5*Math.sin(Date.now()*0.008);
+  // Color-code ALL beams by stress level
+  if (physicsBeams) {
+    for (const b of physicsBeams) {
+      if (!b.a || !b.b) continue;
+      const w = getWorld();
+      const mat = w.materials[b.material] || Object.values(w.materials)[0];
+      const stressRatio = b.stress / (mat.maxStress * BREAK_MULT);
+      let color;
+      if (b.broken) color = `rgba(244,67,54,${0.7+pulse*0.3})`;
+      else if (stressRatio > 0.7) color = `rgba(255,193,7,${0.6+pulse*0.3})`;
+      else color = `rgba(76,175,80,${0.4+pulse*0.2})`;
+      ctx.beginPath();
+      ctx.moveTo(b.a.x, b.a.y); ctx.lineTo(b.b.x, b.b.y);
+      ctx.strokeStyle = color; ctx.lineWidth = b.broken ? 10 : 6;
+      ctx.stroke();
+    }
+  }
+  // Break point circles
   for (const bp of failureData.breakPoints) {
     ctx.beginPath(); ctx.arc(bp.x,bp.y,25+pulse*10,0,Math.PI*2);
     ctx.fillStyle=`rgba(244,67,54,${0.15+pulse*0.15})`;
     ctx.fill();
     ctx.strokeStyle=`rgba(244,67,54,${0.5+pulse*0.3})`;
     ctx.lineWidth=3; ctx.stroke();
+    // Arrow pointing to break
+    ctx.fillStyle='#F44336'; ctx.font='bold 18px sans-serif'; ctx.textAlign='center';
+    ctx.fillText('✕',bp.x,bp.y+6);
   }
-  // Slow-mo label
-  ctx.fillStyle='rgba(0,0,0,0.6)';
-  roundRect(ctx,canvas.width/2-70,10,140,30,8); ctx.fill();
-  ctx.fillStyle='#F44336'; ctx.font='bold 14px sans-serif'; ctx.textAlign='center'; ctx.textBaseline='middle';
-  ctx.fillText('🔍 ANALYZING...',canvas.width/2,25);
+  // Legend
+  ctx.fillStyle='rgba(0,0,0,0.75)';
+  roundRect(ctx,canvas.width/2-100,10,200,55,8); ctx.fill();
+  ctx.font='bold 12px sans-serif'; ctx.textAlign='center'; ctx.textBaseline='middle';
+  ctx.fillStyle='#F44336'; ctx.fillText('🔍 ANALYZING STRESS...',canvas.width/2,25);
+  ctx.font='11px sans-serif';
+  ctx.fillStyle='#4CAF50'; ctx.fillText('● Safe',canvas.width/2-60,43);
+  ctx.fillStyle='#FFC107'; ctx.fillText('● Stressed',canvas.width/2,43);
+  ctx.fillStyle='#F44336'; ctx.fillText('● Broke',canvas.width/2+60,43);
+  ctx.font='10px sans-serif'; ctx.fillStyle='#aaa';
+  ctx.fillText('Tap a red ✕ to learn why!',canvas.width/2,57);
 }
 
 function roundRect(ctx,x,y,w,h,r) {
@@ -1232,10 +1562,11 @@ function analyzeFailure() {
   const fewBeams = allBeams < l.par*0.6;
 
   let cause, hint;
-  if (w.testType==='circuit') {
+  const eTypeF = (w.testType==='castle') ? l.castlePhase : w.testType;
+  if (eTypeF==='circuit') {
     cause = "Not all bulbs are connected to a battery!";
     hint = "Make sure every bulb has a wire path leading back to a battery.";
-  } else if (w.id==='towers') {
+  } else if (w.id==='castle' || w.id==='towers') {
     // Tower-specific hints
     if (fewBeams) {
       cause = "Not enough beams to reach the target height!";
@@ -1301,15 +1632,16 @@ function continueAfterFailure() {
 // ── TESTS ──
 function startTest() {
   const w = getWorld();
-  if (w.testType==='arch') {
+  const l = getLevel();
+  const eType = (w.testType==='castle') ? l.castlePhase : w.testType;
+  if (eType==='arch') {
     if (!archState || archState.placed.size===0) return;
     startArchTest(); return;
   }
   if (gameBeams.length===0) return;
   buddy.say('testing'); buddy.stop();
-  if (w.testType==='circuit') { startCircuitTest(); return; }
+  if (eType==='circuit') { startCircuitTest(); return; }
 
-  const l = getLevel();
   isTesting = true;
   helpVisible = false;
   failurePhase = null; failureData = null;
@@ -1328,7 +1660,8 @@ function startTest() {
     b: physicsNodes.find(n=>n.gx===b.b.gx&&n.gy===b.b.gy)
   }));
 
-  if (w.testType==='vehicle') startVehicleTest();
+  if (w.testType==='flight' || eType==='flight') startFlightTest();
+  else if (w.testType==='vehicle') startVehicleTest();
   else startWeightTest();
 }
 
@@ -1445,6 +1778,81 @@ function startWeightTest() {
   animId=requestAnimationFrame(loop);
 }
 
+function startFlightTest() {
+  const l = getLevel();
+  const w = getWorld();
+  // Calculate lift and drag from beam angles
+  let totalLift = 0, totalDrag = 0, totalWeight = 0;
+  for (const b of gameBeams) {
+    const dx = b.b.x - b.a.x;
+    const dy = b.b.y - b.a.y;
+    const len = Math.sqrt(dx*dx + dy*dy);
+    const angle = Math.atan2(-dy, dx); // negative dy because y-axis is inverted
+    // Angled beams pointing upward create lift (like a wing)
+    const liftContrib = Math.sin(angle) * len * 0.015 * (l.windSpeed||1);
+    // Horizontal span contributes to lift (wingspan)
+    const spanContrib = Math.abs(dx) * 0.008 * (l.windSpeed||1);
+    // Vertical/flat beams create drag
+    const dragContrib = (Math.abs(Math.sin(Math.atan2(dy,dx))) * len * 0.01 + len*0.003) * (l.dragMult||1);
+    const matCost = (b.material==='carbon'||b.material==='fiber') ? 0.6 : 1.0; // lighter materials = less weight
+    totalLift += Math.max(0, liftContrib + spanContrib);
+    totalDrag += dragContrib;
+    totalWeight += len * 0.01 * matCost;
+  }
+  const netLift = totalLift - totalWeight*0.5 - totalDrag*0.3;
+  const maxAltitude = Math.max(0, netLift * 50);
+
+  flightState = { lift: totalLift, drag: totalDrag, weight: totalWeight, altitude: 0, maxAlt: maxAltitude, active: true, frame: 0 };
+
+  function loop() {
+    flightState.frame++;
+    const progress = flightState.frame / 200;
+    // Gradually climb to max altitude
+    flightState.altitude = flightState.maxAlt * Math.min(1, progress * 1.5) * (1 - Math.max(0, progress - 0.7));
+    if (flightState.frame > 50 && flightState.altitude > 0) {
+      flightState.altitude = flightState.maxAlt * Math.min(1, flightState.frame/120);
+    }
+    document.getElementById('progressFill').style.width = Math.min(100, progress*100)+'%';
+
+    drawGame();
+
+    if (flightState.frame >= 200) {
+      isTesting = false;
+      flightState.active = false;
+      if (flightState.maxAlt >= l.flightTarget) {
+        // Success!
+        const stars = gameBeams.length <= l.par ? 3 : gameBeams.length <= l.par + 4 ? 2 : 1;
+        const sk = starKey(currentWorld, currentLevel);
+        earnedStars[sk] = Math.max(earnedStars[sk]||0, stars);
+        saveProgress();
+        showResult(true, stars);
+      } else {
+        // Failed - not enough lift
+        const pct = Math.floor((flightState.maxAlt / l.flightTarget) * 100);
+        failureData = {
+          breakPoints: [],
+          cause: `Your aircraft only reached ${Math.floor(flightState.maxAlt)} ft (needed ${l.flightTarget} ft — ${pct}% there)!`,
+          hint: totalLift < totalDrag ? "Too much drag! Use fewer vertical beams and more angled ones (↗)."
+            : totalWeight > totalLift ? "Too heavy! Use fewer beams or switch to Carbon Fiber for less weight."
+            : "Add more angled beams pointing upward to increase lift. Wider wingspan helps too!"
+        };
+        const ak = `${currentWorld}_${currentLevel}`;
+        levelAttempts[ak] = (levelAttempts[ak]||0) + 1;
+        lastHint[starKey(currentWorld,currentLevel)] = failureData.hint;
+        document.getElementById('failureCause').textContent = failureData.cause;
+        document.getElementById('failureHint').textContent = failureData.hint;
+        document.getElementById('failureOverlay').classList.add('active');
+        document.getElementById('testingBar').style.display='none';
+        sfx.play('fail');
+        buddy.say('break');
+      }
+      return;
+    }
+    animId = requestAnimationFrame(loop);
+  }
+  animId = requestAnimationFrame(loop);
+}
+
 function startCircuitTest() {
   const l = getLevel();
   isTesting = true;
@@ -1548,36 +1956,19 @@ function initArchSlots(l) {
   const slots = [];
   const n = l.archSlots;
   const cx = l.archCx, cy = l.archCy, rx = l.archRx, ry = l.archRy;
-  if (l.archType === 'gothic') {
-    // Pointed arch: two arcs meeting at a point
-    const half = Math.floor(n/2);
-    for (let i=0;i<=half;i++) {
-      const t = (i/(half)) * 0.5;
-      const ang = Math.PI * (1 - t);
-      const x = cx - rx/2 + (rx*0.5)*Math.cos(ang)*0.7;
-      const y = cy - ry * Math.sin(ang)*1.1;
-      slots.push({x,y,ang:ang+Math.PI/2,idx:i});
+  // All arch types: distribute n slots evenly along a semicircle
+  for (let i=0;i<n;i++) {
+    const t = i/(n-1);
+    const ang = Math.PI * (1-t); // left to right
+    let x = cx + rx*Math.cos(ang);
+    let y = cy - ry*Math.sin(ang);
+    // Gothic: raise the center stones to create a pointed peak
+    if (l.archType === 'gothic') {
+      const center = Math.abs(t - 0.5);
+      const lift = (0.5 - center) * ry * 0.5;
+      y -= lift;
     }
-    for (let i=half+1;i<n;i++) {
-      const t = ((i-half)/(n-1-half));
-      const ang = Math.PI * (0.5 + t*0.5);
-      const x = cx + rx/2 + (rx*0.5)*Math.cos(ang)*0.7;
-      const y = cy - ry * Math.sin(Math.PI - ang)*1.1;
-      slots.push({x,y,ang:ang+Math.PI/2,idx:i});
-    }
-    // Fix keystone at top center
-    const ki = half;
-    slots[ki].x = cx;
-    slots[ki].y = cy - ry*1.05;
-  } else {
-    // Roman (semicircular) arch
-    for (let i=0;i<n;i++) {
-      const t = i/(n-1);
-      const ang = Math.PI * (1-t);
-      const x = cx + rx*Math.cos(ang);
-      const y = cy - ry*Math.sin(ang);
-      slots.push({x,y,ang:ang,idx:i});
-    }
+    slots.push({x,y,ang,idx:i});
   }
   const keystoneIdx = Math.floor(n/2);
   slots.forEach((s,i) => { s.isKeystone = (i===keystoneIdx); });
@@ -1585,55 +1976,38 @@ function initArchSlots(l) {
 }
 
 function generateArchSlotShapes(l) {
-  // Generate the wedge-shaped voussoir polygons for each slot
   const n = l.archSlots;
   const cx = l.archCx, cy = l.archCy, rx = l.archRx, ry = l.archRy;
-  const thickness = Math.min(rx,ry)*0.28;
+  const thickness = Math.min(rx,ry)*0.32;
   const shapes = [];
-  if (l.archType === 'gothic') {
-    const half = Math.floor(n/2);
-    const pts = [];
-    // Generate points along the gothic arch curve
-    const steps = n*4;
-    for (let i=0;i<=steps;i++) {
-      const t=i/steps;
-      let x,y;
-      if (t<=0.5) {
-        const a = Math.PI * (1 - t);
-        x = cx - rx*0.35 + (rx*0.5)*Math.cos(a)*0.7;
-        y = cy - ry*Math.sin(a)*1.1;
-      } else {
-        const a = Math.PI * (0.5 + (t-0.5));
-        x = cx + rx*0.35 + (rx*0.5)*Math.cos(a)*0.7;
-        y = cy - ry*Math.sin(Math.PI-a)*1.1;
-      }
-      pts.push({x,y});
+  // Generate curve points at higher resolution
+  const res = n * 6;
+  const pts = [];
+  for (let i=0;i<=res;i++) {
+    const t = i/res;
+    const ang = Math.PI*(1-t);
+    let x = cx + rx*Math.cos(ang);
+    let y = cy - ry*Math.sin(ang);
+    if (l.archType === 'gothic') {
+      const center = Math.abs(t - 0.5);
+      const lift = (0.5 - center) * ry * 0.5;
+      y -= lift;
     }
-    for (let i=0;i<n;i++) {
-      const t1 = Math.floor(i*steps/n), t2 = Math.floor((i+1)*steps/n);
-      const p1 = pts[Math.min(t1,steps)], p2 = pts[Math.min(t2,steps)];
-      const mx = (p1.x+p2.x)/2, my = (p1.y+p2.y)/2;
-      const dx = p2.x-p1.x, dy = p2.y-p1.y;
-      const len = Math.sqrt(dx*dx+dy*dy)||1;
-      const nx = -dy/len, ny = dx/len;
-      shapes.push({
-        outer:[{x:p1.x+nx*thickness/2,y:p1.y+ny*thickness/2},{x:p2.x+nx*thickness/2,y:p2.y+ny*thickness/2}],
-        inner:[{x:p1.x-nx*thickness/2,y:p1.y-ny*thickness/2},{x:p2.x-nx*thickness/2,y:p2.y-ny*thickness/2}],
-        cx:mx,cy:my
-      });
-    }
-  } else {
-    for (let i=0;i<n;i++) {
-      const a1 = Math.PI*(1 - i/(n));
-      const a2 = Math.PI*(1 - (i+1)/(n));
-      shapes.push({
-        outer:[{x:cx+(rx+thickness/2)*Math.cos(a1),y:cy-(ry+thickness/2)*Math.sin(a1)},
-               {x:cx+(rx+thickness/2)*Math.cos(a2),y:cy-(ry+thickness/2)*Math.sin(a2)}],
-        inner:[{x:cx+(rx-thickness/2)*Math.cos(a1),y:cy-(ry-thickness/2)*Math.sin(a1)},
-               {x:cx+(rx-thickness/2)*Math.cos(a2),y:cy-(ry-thickness/2)*Math.sin(a2)}],
-        cx:cx+rx*Math.cos((a1+a2)/2), cy:cy-ry*Math.sin((a1+a2)/2)
-      });
-    }
+    pts.push({x,y});
+  }
+  for (let i=0;i<n;i++) {
+    const i1 = Math.round(i * res / n);
+    const i2 = Math.round((i+1) * res / n);
+    const p1 = pts[Math.min(i1,res)], p2 = pts[Math.min(i2,res)];
+    const mx = (p1.x+p2.x)/2, my = (p1.y+p2.y)/2;
+    const dx = p2.x-p1.x, dy = p2.y-p1.y;
+    const len = Math.sqrt(dx*dx+dy*dy)||1;
+    const nx = -dy/len, ny = dx/len;
+    shapes.push({
+      outer:[{x:p1.x+nx*thickness/2,y:p1.y+ny*thickness/2},{x:p2.x+nx*thickness/2,y:p2.y+ny*thickness/2}],
+      inner:[{x:p1.x-nx*thickness/2,y:p1.y-ny*thickness/2},{x:p2.x-nx*thickness/2,y:p2.y-ny*thickness/2}],
+      cx:mx, cy:my
+    });
   }
   return shapes;
 }
@@ -1642,7 +2016,11 @@ function startArchGame() {
   const l = getLevel();
   const as = initArchSlots(l);
   const shapes = generateArchSlotShapes(l);
-  archState = { slots:as.slots, keystoneIdx:as.keystoneIdx, placed:new Set(), shapes, material:'stone', testPhase:null, testFrames:0, weightY:-30, weightLanded:false, crumbleOffsets:[] };
+  archState = { slots:as.slots, keystoneIdx:as.keystoneIdx, placed:new Set(), prePlaced:new Set(), shapes, material:'stone', testPhase:null, testFrames:0, weightY:-30, weightLanded:false, crumbleOffsets:[] };
+  // Pre-place stones if level defines them
+  if (l.prePlaced) {
+    for (const idx of l.prePlaced) { archState.placed.add(idx); archState.prePlaced.add(idx); }
+  }
   // For double aqueduct, create second arch
   if (l.archType==='double') {
     const l2 = {...l, archCx:l.archCx2};
@@ -1651,6 +2029,7 @@ function startArchGame() {
     archState.slots2 = as2.slots;
     archState.shapes2 = shapes2;
     archState.placed2 = new Set();
+    archState.prePlaced2 = new Set();
     archState.keystoneIdx2 = as2.keystoneIdx;
   }
 }
@@ -1737,16 +2116,24 @@ function drawArchWorld() {
           ctx.beginPath(); ctx.moveTo(sh.cx+off.x-5,sh.cy+off.y-3); ctx.lineTo(sh.cx+off.x+5,sh.cy+off.y+3); ctx.stroke();
           ctx.restore();
         } else {
-          // Ghost slot
-          ctx.fillStyle = isKeystone ? 'rgba(255,214,0,0.15)' : 'rgba(141,110,99,0.12)';
+          // Ghost slot — pulsing for keystone, solid outline for others
+          const pulse = isKeystone ? 0.2 + Math.sin(Date.now()*0.005)*0.12 : 0;
+          ctx.fillStyle = isKeystone ? `rgba(255,214,0,${0.15+pulse})` : 'rgba(141,110,99,0.15)';
           ctx.fill();
-          ctx.strokeStyle = isKeystone ? 'rgba(255,214,0,0.5)' : 'rgba(141,110,99,0.3)';
-          ctx.lineWidth=2; ctx.setLineDash([6,4]); ctx.stroke(); ctx.setLineDash([]);
+          ctx.strokeStyle = isKeystone ? `rgba(255,214,0,${0.6+pulse})` : 'rgba(141,110,99,0.35)';
+          ctx.lineWidth = isKeystone ? 3 : 2;
+          if (!isKeystone) { ctx.setLineDash([6,4]); }
+          ctx.stroke(); ctx.setLineDash([]);
           // Label
-          ctx.fillStyle = isKeystone ? '#FFD600' : '#8D6E63';
-          ctx.font = isKeystone ? 'bold 11px sans-serif' : '10px sans-serif';
+          ctx.fillStyle = isKeystone ? '#FFD600' : 'rgba(141,110,99,0.7)';
+          ctx.font = isKeystone ? 'bold 13px sans-serif' : '10px sans-serif';
           ctx.textAlign='center'; ctx.textBaseline='middle';
           ctx.fillText(isKeystone?'★ KEY':'tap',sh.cx,sh.cy);
+          // Glow for keystone
+          if (isKeystone) {
+            ctx.beginPath(); ctx.arc(sh.cx,sh.cy,28,0,Math.PI*2);
+            ctx.fillStyle=`rgba(255,214,0,${0.06+pulse*0.3})`; ctx.fill();
+          }
         }
       }
     };
@@ -1756,26 +2143,20 @@ function drawArchWorld() {
     }
 
     // Draw guide curve (faint)
-    ctx.strokeStyle='rgba(141,110,99,0.15)'; ctx.lineWidth=1; ctx.setLineDash([4,6]);
-    if (l.archType==='gothic') {
-      // Draw the two arcs of a gothic arch
+    const drawGuideCurve = (cx2, cy2, rx2, ry2, type) => {
+      ctx.strokeStyle='rgba(141,110,99,0.15)'; ctx.lineWidth=1; ctx.setLineDash([4,6]);
       ctx.beginPath();
-      const half=Math.floor(l.archSlots/2);
       for (let i=0;i<=40;i++) {
         const t=i/40;
-        let x,y;
-        if (t<=0.5) { const a=Math.PI*(1-t); x=l.archCx-l.archRx*0.35+(l.archRx*0.5)*Math.cos(a)*0.7; y=l.archCy-l.archRy*Math.sin(a)*1.1; }
-        else { const a=Math.PI*(0.5+(t-0.5)); x=l.archCx+l.archRx*0.35+(l.archRx*0.5)*Math.cos(a)*0.7; y=l.archCy-l.archRy*Math.sin(Math.PI-a)*1.1; }
+        const ang=Math.PI*(1-t);
+        let x=cx2+rx2*Math.cos(ang), y=cy2-ry2*Math.sin(ang);
+        if (type==='gothic') { const c=Math.abs(t-0.5); y-=(0.5-c)*ry2*0.5; }
         if(i===0)ctx.moveTo(x,y);else ctx.lineTo(x,y);
       }
-      ctx.stroke();
-    } else {
-      ctx.beginPath();
-      ctx.ellipse(l.archCx,l.archCy,l.archRx,l.archRy,0,Math.PI,0);
-      ctx.stroke();
-      if (l.archType==='double') { ctx.beginPath(); ctx.ellipse(l.archCx2,l.archCy,l.archRx,l.archRy,0,Math.PI,0); ctx.stroke(); }
-    }
-    ctx.setLineDash([]);
+      ctx.stroke(); ctx.setLineDash([]);
+    };
+    drawGuideCurve(l.archCx, l.archCy, l.archRx, l.archRy, l.archType);
+    if (l.archType==='double') drawGuideCurve(l.archCx2, l.archCy, l.archRx, l.archRy, l.archType);
 
     // Weight during test
     if (archState.testPhase) {
@@ -1791,47 +2172,74 @@ function drawArchWorld() {
   }
 }
 
+function pointInVoussoir(pt, sh) {
+  // Check if point is inside the voussoir quadrilateral (outer0, outer1, inner1, inner0)
+  const poly = [sh.outer[0], sh.outer[1], sh.inner[1], sh.inner[0]];
+  let inside = false;
+  for (let i=0,j=poly.length-1; i<poly.length; j=i++) {
+    if ((poly[i].y>pt.y)!==(poly[j].y>pt.y) &&
+      pt.x<(poly[j].x-poly[i].x)*(pt.y-poly[i].y)/(poly[j].y-poly[i].y)+poly[i].x) {
+      inside = !inside;
+    }
+  }
+  return inside;
+}
+
+function archHitTest(pt, shapes, placed, skipPlaced) {
+  // Find closest shape, using point-in-polygon + generous radius
+  let best=-1, bestD=999;
+  for (let i=0;i<shapes.length;i++) {
+    if (skipPlaced && placed.has(i)) continue;
+    if (!skipPlaced && !placed.has(i)) continue;
+    const sh = shapes[i];
+    // Point-in-polygon first (exact)
+    if (pointInVoussoir(pt, sh)) return i;
+    // Fallback: distance to center with generous radius
+    const d = Math.hypot(pt.x-sh.cx, pt.y-sh.cy);
+    if (d < 50 && d < bestD) { bestD = d; best = i; }
+  }
+  return best;
+}
+
 function handleArchTap(pt) {
   if (!archState || archState.testPhase) return;
   const l = getLevel();
-  // Check which slot was tapped
-  const tryPlace = (shapes, placed) => {
-    for (let i=0;i<shapes.length;i++) {
-      if (placed.has(i)) continue;
-      const sh = shapes[i];
-      const d = Math.hypot(pt.x-sh.cx, pt.y-sh.cy);
-      if (d < 35) {
-        placed.add(i);
-        sfx.play('place');
-        return true;
+  const tryPlace = (shapes, placed, keystoneIdx, prePlaced) => {
+    const hit = archHitTest(pt, shapes, placed, true);
+    if (hit >= 0 && !(prePlaced && prePlaced.has(hit))) {
+      placed.add(hit);
+      sfx.play('place');
+      // Auto-fill: when user taps one non-keystone slot, fill ALL non-keystone non-puzzle slots
+      if (hit !== keystoneIdx && l.autoFill) {
+        for (let i=0;i<shapes.length;i++) {
+          if (i !== keystoneIdx && !placed.has(i) && !(prePlaced && prePlaced.has(i))) placed.add(i);
+        }
       }
+      return true;
     }
     return false;
   };
-  if (tryPlace(archState.shapes, archState.placed)) { updateArchUI(); drawGame(); return; }
+  if (tryPlace(archState.shapes, archState.placed, archState.keystoneIdx, archState.prePlaced)) { updateArchUI(); drawGame(); return; }
   if (l.archType==='double' && archState.shapes2) {
-    if (tryPlace(archState.shapes2, archState.placed2)) { updateArchUI(); drawGame(); return; }
+    if (tryPlace(archState.shapes2, archState.placed2, archState.keystoneIdx2, archState.prePlaced2)) { updateArchUI(); drawGame(); return; }
   }
 }
 
 function handleArchRemove(pt) {
   if (!archState || archState.testPhase) return;
   const l = getLevel();
-  const tryRemove = (shapes, placed) => {
-    for (let i=0;i<shapes.length;i++) {
-      if (!placed.has(i)) continue;
-      const sh = shapes[i];
-      if (Math.hypot(pt.x-sh.cx, pt.y-sh.cy) < 35) {
-        placed.delete(i);
-        sfx.play('remove');
-        return true;
-      }
+  const tryRemove = (shapes, placed, prePlaced) => {
+    const hit = archHitTest(pt, shapes, placed, false);
+    if (hit >= 0 && !(prePlaced && prePlaced.has(hit))) {
+      placed.delete(hit);
+      sfx.play('remove');
+      return true;
     }
     return false;
   };
-  if (tryRemove(archState.shapes, archState.placed)) { updateArchUI(); drawGame(); return; }
+  if (tryRemove(archState.shapes, archState.placed, archState.prePlaced)) { updateArchUI(); drawGame(); return; }
   if (l.archType==='double' && archState.shapes2) {
-    if (tryRemove(archState.shapes2, archState.placed2)) { updateArchUI(); drawGame(); return; }
+    if (tryRemove(archState.shapes2, archState.placed2, archState.prePlaced2)) { updateArchUI(); drawGame(); return; }
   }
 }
 
@@ -2043,7 +2451,8 @@ function showResult(success, stars) {
 
   // What-If panel
   const wifPanel = document.getElementById('whatIfPanel');
-  if (success && w.testType !== 'circuit' && w.testType !== 'arch') {
+  const eTypeR = (w.testType==='castle') ? getLevel().castlePhase : w.testType;
+  if (success && eTypeR !== 'circuit' && eTypeR !== 'arch' && eTypeR !== 'flight') {
     wifPanel.style.display = 'block';
     document.getElementById('wifGravity').value = 100;
     document.getElementById('wifWeight').value = 100;
@@ -2379,7 +2788,9 @@ const buddy = {
     manyBeams: ["Looking solid! Ready to test?", "Great structure! Let's see if it holds!", "That's some fine engineering!"],
     testing: ["Here we go... 🤞", "Fingers crossed!", "Let's see how it holds!"],
     break: ["Oops! That beam snapped!", "Don't worry, we can fix this!", "Try reinforcing that spot!"],
-    circuit: ["Connect the battery to all bulbs!", "Electricity needs a path!", "Wire it up! ⚡"]
+    circuit: ["Connect the battery to all bulbs!", "Electricity needs a path!", "Wire it up! ⚡"],
+    castle: ["Build your mighty castle!", "Every castle needs a strong foundation!", "Think like a medieval engineer! 🏰"],
+    flying: ["Angle those beams upward for lift! ✈️", "Wider wings = more lift!", "Keep it light — every beam adds weight!"]
   },
   say(category) {
     const msgs = this.messages[category];
@@ -2395,7 +2806,9 @@ const buddy = {
     if (beamCount === 0) this.say('start');
     else if (w.testType === 'circuit') this.say('circuit');
     else if (beamCount < 3) this.say('fewBeams');
-    else if (w.id === 'arches') { if (archState && archState.placed.size < archState.shapes.length/2) this.say('arches'); }
+    else if (w.id === 'arches' || (w.id === 'castle' && getLevel().castlePhase === 'arch')) { if (archState && archState.placed.size < archState.shapes.length/2) this.say('arches'); }
+    else if (w.id === 'castle') this.say('castle');
+    else if (w.id === 'flying') this.say('flying');
     else if (w.id === 'towers' && beamCount < 6) this.say('towers');
     else if (beamCount < 6) this.say('triangles');
     else this.say('manyBeams');
@@ -2415,13 +2828,15 @@ const BADGES = [
   { id:'tower_master', emoji:'🏰', name:'Tower King', desc:'Earn all tower stars', check:()=>getWorldStars(1)>=12 },
   { id:'arch_master', emoji:'🏛️', name:'Arch Expert', desc:'Earn all arch stars', check:()=>getWorldStars(2)>=12 },
   { id:'circuit_master', emoji:'⚡', name:'Circuit Whiz', desc:'Earn all circuit stars', check:()=>getWorldStars(3)>=12 },
+  { id:'castle_master', emoji:'🏰', name:'Castle Lord', desc:'Earn all castle stars', check:()=>getWorldStars(4)>=12 },
+  { id:'flight_master', emoji:'✈️', name:'Ace Pilot', desc:'Earn all flying stars', check:()=>getWorldStars(5)>=12 },
   { id:'star_collector', emoji:'⭐', name:'Star Collector', desc:'Earn 20 total stars', check:()=>getTotalStars()>=20 },
   { id:'perfectionist', emoji:'💎', name:'Perfectionist', desc:'Get 3 stars on 5 levels', check:()=>Object.values(earnedStars).filter(s=>s===3).length>=5 },
-  { id:'engineer', emoji:'🎓', name:'Engineer', desc:'Complete all 4 worlds', check:()=>WORLD_DATA.every((_,i)=>getWorldStars(i)>0 && WORLD_DATA[i].levels.every((_,j)=>(earnedStars[starKey(i,j)]||0)>0)) },
+  { id:'engineer', emoji:'🎓', name:'Engineer', desc:'Complete all 6 worlds', check:()=>WORLD_DATA.every((_,i)=>getWorldStars(i)>0 && WORLD_DATA[i].levels.every((_,j)=>(earnedStars[starKey(i,j)]||0)>0)) },
   { id:'persistent', emoji:'💪', name:'Never Give Up', desc:'Retry a level 5+ times', check:()=>Object.values(levelAttempts).some(a=>a>=5) },
   { id:'speedster', emoji:'🚀', name:'Speedster', desc:'Beat a level under par', check:()=>{ for(let wi=0;wi<WORLD_DATA.length;wi++) for(let li=0;li<WORLD_DATA[wi].levels.length;li++) if((earnedStars[starKey(wi,li)]||0)===3) return true; return false; }},
-  { id:'all_stars', emoji:'🌟', name:'Superstar', desc:'Earn every single star', check:()=>getTotalStars()>=51 },
-  { id:'explorer', emoji:'🗺️', name:'Explorer', desc:'Try all 4 worlds', check:()=>WORLD_DATA.every((_,i)=>getWorldStars(i)>0) },
+  { id:'all_stars', emoji:'🌟', name:'Superstar', desc:'Earn every single star', check:()=>getTotalStars()>=75 },
+  { id:'explorer', emoji:'🗺️', name:'Explorer', desc:'Try all 6 worlds', check:()=>WORLD_DATA.every((_,i)=>getWorldStars(i)>0) },
 ];
 let earnedBadges = {};
 
