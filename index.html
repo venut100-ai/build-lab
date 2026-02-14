@@ -906,28 +906,6 @@ function drawTowerWorld() {
   if (failurePhase==='slowmo') drawFailureHighlights();
 }
 
-function drawArchWorld() {
-  const l = getLevel();
-  const W=canvas.width, H=canvas.height;
-  // Warm stone sky
-  const sg=ctx.createLinearGradient(0,0,0,H);
-  sg.addColorStop(0,'#FFE0B2'); sg.addColorStop(1,'#FFF3E0');
-  ctx.fillStyle=sg; ctx.fillRect(0,0,W,H);
-  drawClouds(W);
-  drawWater(l);
-  // Stone ground
-  for (const [gx,gy] of l.groundTiles) {
-    const tx=40+gx*l.cellSize-l.cellSize/2, ty=40+gy*l.cellSize-l.cellSize/2;
-    ctx.fillStyle = '#A1887F';
-    ctx.fillRect(tx,ty,l.cellSize,l.cellSize);
-    ctx.strokeStyle = '#8D6E63'; ctx.lineWidth=1;
-    ctx.strokeRect(tx+2,ty+2,l.cellSize-4,l.cellSize-4);
-  }
-  drawBeamsAndNodes();
-  if (weightObj && weightObj.active) drawWeight();
-  if (failurePhase==='slowmo') drawFailureHighlights();
-}
-
 function drawCircuitWorld() {
   const l = getLevel();
   const W=canvas.width, H=canvas.height;
