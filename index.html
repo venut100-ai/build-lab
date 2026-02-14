@@ -470,7 +470,9 @@ function saveProgress() {
 function loadProgress() {
   try { earnedStars = JSON.parse(localStorage.getItem('buildlab_stars')) || {}; } catch(e) { earnedStars = {}; }
   try { levelAttempts = JSON.parse(localStorage.getItem('buildlab_attempts')) || {}; } catch(e) { levelAttempts = {}; }
-  try { lastHint = JSON.parse(localStorage.getItem('buildlab_hints')) || {}; } catch(e) { lastHint = {}; }
+  // Clear stale hints from before world-specific fix (v2)
+  lastHint = {};
+  try { localStorage.removeItem('buildlab_hints'); } catch(e) {}
 }
 
 // ── HELPERS ──
