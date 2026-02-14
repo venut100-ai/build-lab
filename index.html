@@ -437,15 +437,23 @@ const WORLD_DATA = [
   },
   {
     id:'arches', name:'Arches', emoji:'🏛️', color:'#009688',
-    desc:'Span the gap with stone!', testType:'weight',
-    btnClass:'btn-teal', testLabel:'⬇️ Applying the load...',
-    helpText:'<b>1.</b> Tap a dot to select it<br><b>2.</b> Tap another dot to place a beam<br><b>3.</b> Build a structure that spans the gap using angled beams<br><b>4.</b> Hit <b>TEST IT!</b> to drop the weight!',
+    desc:'Build with curved stone!', testType:'arch',
+    btnClass:'btn-teal', testLabel:'⬇️ Dropping the weight...',
+    helpText:'<b>1.</b> Tap the ghost stones to place them<br><b>2.</b> Place the <span style="color:#FFD600">★ keystone</span> last to lock the arch!<br><b>3.</b> Hit <b>TEST IT!</b> to drop the weight<br><b>4.</b> A complete arch pushes weight to the sides!',
     materials:{ stone:{ name:"Stone",color:"#8D6E63",stroke:"#5D4037",maxStress:0.40,width:9,emoji:"🪨",cost:1 }, marble:{ name:"Marble",color:"#B0BEC5",stroke:"#607D8B",maxStress:0.70,width:7,emoji:"💎",cost:2 }},
     levels:[
-      { id:1,name:"Stone Span",subtitle:"Bridge the gap with stone!",description:"Use angled beams from each side to meet in the middle and support the weight above.",tip:"Build angled beams upward from each support to meet at the top — like an upside-down V. This pushes weight outward to the strong supports.",fact:"Romans built arches from wedge-shaped stones, each one leaning on the next. Many still stand 2,000 years later!",emoji:"🏛️",gridW:7,gridH:5,cellSize:65,anchors:[[0,2],[0,3],[0,4],[1,2],[1,3],[1,4],[5,2],[5,3],[5,4],[6,2],[6,3],[6,4]],groundTiles:[[0,3],[0,4],[1,3],[1,4],[5,3],[5,4],[6,3],[6,4]],waterTiles:[[2,3],[2,4],[3,3],[3,4],[4,3],[4,4]],targetRow:0,par:10,testWeight:3.5,principle:"Angled beams push weight outward to the supports on each side — this is the arch principle!",principleIcon:"🏛️" },
-      { id:2,name:"Roman Span",subtitle:"Build like the Romans!",description:"A wider gap! Use angled beams from both sides to meet at a strong peak in the middle.",tip:"Where the angled beams meet at the top is the keystone area — make sure it has plenty of connections to stay locked together.",fact:"Roman aqueducts used arches to carry water across valleys. The Pont du Gard in France is 160 feet tall!",emoji:"🏺",gridW:9,gridH:6,cellSize:58,anchors:[[0,2],[0,3],[0,4],[0,5],[1,2],[1,3],[1,4],[1,5],[7,2],[7,3],[7,4],[7,5],[8,2],[8,3],[8,4],[8,5]],groundTiles:[[0,3],[0,4],[0,5],[1,3],[1,4],[1,5],[7,3],[7,4],[7,5],[8,3],[8,4],[8,5]],waterTiles:[[2,3],[2,4],[2,5],[3,3],[3,4],[3,5],[4,3],[4,4],[4,5],[5,3],[5,4],[5,5],[6,3],[6,4],[6,5]],targetRow:0,par:14,testWeight:4.5,principle:"The keystone area at the top locks the two sides together — it's the most important part!",principleIcon:"🔑" },
-      { id:3,name:"Gothic Point",subtitle:"Reach to the heavens!",description:"Build a tall, pointed structure that rises high to support a heavy load from above.",tip:"A tall pointed shape directs weight downward more efficiently. Build steep angles from both sides meeting at a high point!",fact:"Gothic cathedrals like Notre-Dame use pointed arches and flying buttresses to reach incredible heights!",emoji:"⛪",gridW:9,gridH:7,cellSize:52,anchors:[[0,3],[0,4],[0,5],[0,6],[1,3],[1,4],[1,5],[1,6],[7,3],[7,4],[7,5],[7,6],[8,3],[8,4],[8,5],[8,6]],groundTiles:[[0,4],[0,5],[0,6],[1,4],[1,5],[1,6],[7,4],[7,5],[7,6],[8,4],[8,5],[8,6]],waterTiles:[[2,4],[2,5],[2,6],[3,4],[3,5],[3,6],[4,4],[4,5],[4,6],[5,4],[5,5],[5,6],[6,4],[6,5],[6,6]],targetRow:0,par:16,testWeight:5.0,principle:"Steep, pointed shapes direct forces more vertically, making them even stronger!",principleIcon:"⛪" },
-      { id:4,name:"The Aqueduct",subtitle:"Carry water across!",description:"A long span! Use the middle pillar to build two smaller spans instead of one big one.",tip:"Use the middle pillar as an extra support! Two smaller spans are much stronger than one giant one.",fact:"The Romans built aqueducts spanning hundreds of miles. The longest, the Zaghouan, was 82 miles!",emoji:"🌊",gridW:11,gridH:7,cellSize:48,anchors:[[0,3],[0,4],[0,5],[0,6],[1,3],[1,4],[1,5],[1,6],[9,3],[9,4],[9,5],[9,6],[10,3],[10,4],[10,5],[10,6],[5,5],[5,6]],groundTiles:[[0,4],[0,5],[0,6],[1,4],[1,5],[1,6],[9,4],[9,5],[9,6],[10,4],[10,5],[10,6],[5,5],[5,6]],waterTiles:[[2,4],[2,5],[2,6],[3,4],[3,5],[3,6],[4,4],[4,5],[4,6],[6,4],[6,5],[6,6],[7,4],[7,5],[7,6],[8,4],[8,5],[8,6]],targetRow:0,par:22,testWeight:5.5,principle:"Dividing a long span into smaller sections with pillars multiplies the strength!",principleIcon:"🏗️" }
+      { id:1,name:"First Arch",subtitle:"The shape that holds!",description:"Place stone blocks along the curve to build your first arch. Each stone leans on the next!",tip:"Start from the supports and work toward the keystone at the top. The keystone locks the whole arch together!",fact:"Romans built arches from wedge-shaped stones called voussoirs. Many still stand 2,000 years later!",emoji:"🏛️",
+        archType:'roman',archCx:240,archCy:280,archRx:180,archRy:160,archSlots:7,archPillarW:50,archPillarH:100,canvasW:480,canvasH:380,testWeight:3.0,par:7,
+        principle:"Each stone in an arch pushes on its neighbor. The keystone at the top locks them all together!",principleIcon:"🏛️" },
+      { id:2,name:"Roman Gate",subtitle:"Build a grand entrance!",description:"A wider arch with more stones — the Romans used these for city gates and aqueducts!",tip:"More stones make a smoother, stronger curve. Don't forget the keystone!",fact:"Roman aqueducts carried water across valleys using rows of arches. The Pont du Gard is 160 feet tall!",emoji:"🏺",
+        archType:'roman',archCx:280,archCy:310,archRx:220,archRy:180,archSlots:9,archPillarW:55,archPillarH:120,canvasW:560,canvasH:430,testWeight:4.0,par:9,
+        principle:"A wider arch needs more stones but spreads weight over a bigger area — that's why aqueducts work!",principleIcon:"🔑" },
+      { id:3,name:"Gothic Point",subtitle:"Reach to the heavens!",description:"Gothic cathedrals used pointed arches — they're even stronger and taller than round ones!",tip:"A pointed arch directs weight downward more efficiently. The two curves meet at a sharp peak!",fact:"Gothic cathedrals like Notre-Dame use pointed arches and flying buttresses to reach incredible heights!",emoji:"⛪",
+        archType:'gothic',archCx:260,archCy:340,archRx:180,archRy:220,archSlots:9,archPillarW:55,archPillarH:110,canvasW:520,canvasH:450,testWeight:4.5,par:9,
+        principle:"Pointed arches direct forces more straight down, letting builders reach incredible heights!",principleIcon:"⛪" },
+      { id:4,name:"The Aqueduct",subtitle:"Double arch power!",description:"Build TWO arches side by side on a shared pillar — just like a real Roman aqueduct!",tip:"The middle pillar supports both arches. Two smaller arches are stronger than one big one!",fact:"The Romans built aqueducts spanning hundreds of miles. The Aqueduct of Segovia has 163 arches!",emoji:"🌊",
+        archType:'double',archCx:200,archCx2:440,archCy:310,archRx:150,archRy:160,archSlots:7,archPillarW:45,archPillarH:110,canvasW:640,canvasH:420,testWeight:5.0,par:15,
+        principle:"Dividing a long span into multiple arches with shared pillars multiplies the strength!",principleIcon:"🏗️" }
     ]
   },
   {
@@ -605,18 +613,21 @@ function showIntro(idx) {
 function startGame() {
   const w = getWorld();
   const l = getLevel();
-  const anchorSet = new Set(l.anchors.map(([x,y])=>`${x},${y}`));
+  const anchorSet = l.anchors ? new Set(l.anchors.map(([x,y])=>`${x},${y}`)) : new Set();
   gameNodes = []; gameBeams = []; selectedNode = null;
   isTesting = false; vehicle = null; weightObj = null;
   failurePhase = null; failureData = null; whatIfOverrides = null;
   circuitParticles = []; circuitReached = new Set();
+  archState = null;
 
   // Set default material
   const matKeys = Object.keys(w.materials);
   material = matKeys[0];
 
   // Create nodes
-  if (w.testType === 'circuit') {
+  if (w.testType === 'arch') {
+    startArchGame();
+  } else if (w.testType === 'circuit') {
     const blockedSet = new Set((l.blocked||[]).map(([x,y])=>`${x},${y}`));
     const srcSet = new Set((l.sources||[]).map(([x,y])=>`${x},${y}`));
     const tgtSet = new Set((l.targets||[]).map(([x,y])=>`${x},${y}`));
@@ -667,6 +678,7 @@ function startGame() {
   // Update test button text
   const testBtn = document.getElementById('testBtn');
   if (w.testType === 'circuit') testBtn.innerHTML = 'TEST IT! ⚡';
+  else if (w.testType === 'arch') testBtn.innerHTML = 'TEST IT! ⬇️';
   else if (w.testType === 'weight') testBtn.innerHTML = 'TEST IT! ⬇️';
   else testBtn.innerHTML = 'TEST IT! 🚛';
 
@@ -684,9 +696,14 @@ function resizeCanvas() {
   const l = getLevel();
   const w = getWorld();
   const wrap = document.getElementById('canvasWrap');
-  const pad = w.testType==='circuit' ? 120 : 80;
-  const cw = l.gridW * l.cellSize + pad;
-  const ch = l.gridH * l.cellSize + pad;
+  let cw, ch;
+  if (w.testType==='arch') {
+    cw = l.canvasW; ch = l.canvasH;
+  } else {
+    const pad = w.testType==='circuit' ? 120 : 80;
+    cw = l.gridW * l.cellSize + pad;
+    ch = l.gridH * l.cellSize + pad;
+  }
   const aspect = cw/ch;
   const maxW = wrap.clientWidth;
   const maxH = wrap.clientHeight || 500;
@@ -701,6 +718,17 @@ function updateMaterialBtns() {
   const w = getWorld();
   const container = document.getElementById('matBtns');
   container.innerHTML = '';
+  if (w.testType==='arch' && archState) {
+    // Show material selector for arch stones
+    for (const [key, mat] of Object.entries(w.materials)) {
+      const btn = document.createElement('button');
+      btn.className = 'mat-btn' + (archState.material===key?' active':'');
+      btn.innerHTML = `${mat.emoji} ${mat.name}`;
+      btn.onclick = () => { archState.material=key; updateMaterialBtns(); };
+      container.appendChild(btn);
+    }
+    return;
+  }
   for (const [key, mat] of Object.entries(w.materials)) {
     const btn = document.createElement('button');
     btn.className = 'mat-btn' + (material===key?' active':'');
@@ -714,22 +742,34 @@ function updateGameUI() {
   const l = getLevel();
   document.getElementById('gameTitle').textContent = l.name;
   const w = getWorld();
-  const beamWord = w.testType==='circuit' ? 'Wires' : 'Beams';
-  document.getElementById('gameMeta').textContent = `${beamWord}: ${gameBeams.length} | Par: ${l.par}`;
-  document.getElementById('testBtn').disabled = gameBeams.length === 0;
+  if (w.testType==='arch' && archState) {
+    updateArchUI();
+  } else {
+    const beamWord = w.testType==='circuit' ? 'Wires' : 'Beams';
+    document.getElementById('gameMeta').textContent = `${beamWord}: ${gameBeams.length} | Par: ${l.par}`;
+    document.getElementById('testBtn').disabled = gameBeams.length === 0;
+  }
 }
 
 function toggleHelp() {
   helpVisible = !helpVisible;
   document.getElementById('helpOverlay').style.display = helpVisible ? 'flex' : 'none';
 }
-function clearBeams() { gameBeams=[]; selectedNode=null; updateGameUI(); drawGame(); }
+function clearBeams() {
+  if (archState) {
+    archState.placed.clear();
+    if (archState.placed2) archState.placed2.clear();
+    archState.testPhase=null;
+    updateArchUI(); drawGame(); return;
+  }
+  gameBeams=[]; selectedNode=null; updateGameUI(); drawGame();
+}
 function exitGame() {
   isTesting=false; failurePhase=null;
   if (animId) cancelAnimationFrame(animId);
   vehicle=null; weightObj=null; buddy.stop();
   window._isDailyChallenge = false; window._dailyLevel = null;
-  h2hState = null; coopState = null; hidePlayerBanner();
+  h2hState = null; coopState = null; archState = null; hidePlayerBanner();
   showScreen('levels');
 }
 
@@ -743,6 +783,14 @@ function exitGame() {
       e.preventDefault();
       const pt = canvasPoint(e);
       if (!pt) return;
+      // Arch mode input
+      if (archState && !archState.testPhase) {
+        const now = Date.now();
+        if (now - lastTap < 350) { handleArchRemove(pt); lastTap=0; return; }
+        lastTap = now;
+        handleArchTap(pt);
+        return;
+      }
       const now = Date.now();
       if (now - lastTap < 350) { removeBeamAt(pt); lastTap=0; return; }
       lastTap = now;
@@ -1209,21 +1257,6 @@ function analyzeFailure() {
   if (w.testType==='circuit') {
     cause = "Not all bulbs are connected to a battery!";
     hint = "Make sure every bulb has a wire path leading back to a battery.";
-  } else if (w.id==='arches') {
-    // Arch-specific hints — about angled beams, spans, and supports
-    if (fewBeams) {
-      cause = "Not enough beams to span the gap!";
-      hint = "Build angled beams from each support upward to meet in the middle. You need enough beams to make a solid path across!";
-    } else if (allFirstMat && matKeys.length>1 && currentLevel>=2) {
-      cause = `${w.materials[matKeys[0]].name} wasn't strong enough for this heavy load!`;
-      hint = `Try using ${w.materials[matKeys[1]].name} in the ${area} — especially where the beams meet at the top, where the weight pushes hardest.`;
-    } else if (broken.length > allBeams*0.5) {
-      cause = "The structure collapsed — the weight wasn't being directed to the supports!";
-      hint = "Use angled beams from both sides that meet at the top. Each side should lean into the other so the weight pushes outward to the solid supports.";
-    } else {
-      cause = `The ${area} of your structure couldn't handle the stress!`;
-      hint = `Strengthen the ${area}. Add more connecting beams so the weight has multiple paths to reach the supports on each side.`;
-    }
   } else if (w.id==='towers') {
     // Tower-specific hints
     if (fewBeams) {
@@ -1289,8 +1322,12 @@ function continueAfterFailure() {
 
 // ── TESTS ──
 function startTest() {
-  if (gameBeams.length===0) return;
   const w = getWorld();
+  if (w.testType==='arch') {
+    if (!archState || archState.placed.size===0) return;
+    startArchTest(); return;
+  }
+  if (gameBeams.length===0) return;
   buddy.say('testing'); buddy.stop();
   if (w.testType==='circuit') { startCircuitTest(); return; }
 
@@ -1526,6 +1563,427 @@ function startCircuitTest() {
   animId=requestAnimationFrame(loop);
 }
 
+// ── ARCH MODE ──
+let archState = null; // { slots:[], placed:Set, pillarSlots:[], keystoneIdx }
+
+function initArchSlots(l) {
+  const slots = [];
+  const n = l.archSlots;
+  const cx = l.archCx, cy = l.archCy, rx = l.archRx, ry = l.archRy;
+  if (l.archType === 'gothic') {
+    // Pointed arch: two arcs meeting at a point
+    const half = Math.floor(n/2);
+    for (let i=0;i<=half;i++) {
+      const t = (i/(half)) * 0.5;
+      const ang = Math.PI * (1 - t);
+      const x = cx - rx/2 + (rx*0.5)*Math.cos(ang)*0.7;
+      const y = cy - ry * Math.sin(ang)*1.1;
+      slots.push({x,y,ang:ang+Math.PI/2,idx:i});
+    }
+    for (let i=half+1;i<n;i++) {
+      const t = ((i-half)/(n-1-half));
+      const ang = Math.PI * (0.5 + t*0.5);
+      const x = cx + rx/2 + (rx*0.5)*Math.cos(ang)*0.7;
+      const y = cy - ry * Math.sin(Math.PI - ang)*1.1;
+      slots.push({x,y,ang:ang+Math.PI/2,idx:i});
+    }
+    // Fix keystone at top center
+    const ki = half;
+    slots[ki].x = cx;
+    slots[ki].y = cy - ry*1.05;
+  } else {
+    // Roman (semicircular) arch
+    for (let i=0;i<n;i++) {
+      const t = i/(n-1);
+      const ang = Math.PI * (1-t);
+      const x = cx + rx*Math.cos(ang);
+      const y = cy - ry*Math.sin(ang);
+      slots.push({x,y,ang:ang,idx:i});
+    }
+  }
+  const keystoneIdx = Math.floor(n/2);
+  slots.forEach((s,i) => { s.isKeystone = (i===keystoneIdx); });
+  return { slots, keystoneIdx };
+}
+
+function generateArchSlotShapes(l) {
+  // Generate the wedge-shaped voussoir polygons for each slot
+  const n = l.archSlots;
+  const cx = l.archCx, cy = l.archCy, rx = l.archRx, ry = l.archRy;
+  const thickness = Math.min(rx,ry)*0.28;
+  const shapes = [];
+  if (l.archType === 'gothic') {
+    const half = Math.floor(n/2);
+    const pts = [];
+    // Generate points along the gothic arch curve
+    const steps = n*4;
+    for (let i=0;i<=steps;i++) {
+      const t=i/steps;
+      let x,y;
+      if (t<=0.5) {
+        const a = Math.PI * (1 - t);
+        x = cx - rx*0.35 + (rx*0.5)*Math.cos(a)*0.7;
+        y = cy - ry*Math.sin(a)*1.1;
+      } else {
+        const a = Math.PI * (0.5 + (t-0.5));
+        x = cx + rx*0.35 + (rx*0.5)*Math.cos(a)*0.7;
+        y = cy - ry*Math.sin(Math.PI-a)*1.1;
+      }
+      pts.push({x,y});
+    }
+    for (let i=0;i<n;i++) {
+      const t1 = Math.floor(i*steps/n), t2 = Math.floor((i+1)*steps/n);
+      const p1 = pts[Math.min(t1,steps)], p2 = pts[Math.min(t2,steps)];
+      const mx = (p1.x+p2.x)/2, my = (p1.y+p2.y)/2;
+      const dx = p2.x-p1.x, dy = p2.y-p1.y;
+      const len = Math.sqrt(dx*dx+dy*dy)||1;
+      const nx = -dy/len, ny = dx/len;
+      shapes.push({
+        outer:[{x:p1.x+nx*thickness/2,y:p1.y+ny*thickness/2},{x:p2.x+nx*thickness/2,y:p2.y+ny*thickness/2}],
+        inner:[{x:p1.x-nx*thickness/2,y:p1.y-ny*thickness/2},{x:p2.x-nx*thickness/2,y:p2.y-ny*thickness/2}],
+        cx:mx,cy:my
+      });
+    }
+  } else {
+    for (let i=0;i<n;i++) {
+      const a1 = Math.PI*(1 - i/(n));
+      const a2 = Math.PI*(1 - (i+1)/(n));
+      shapes.push({
+        outer:[{x:cx+(rx+thickness/2)*Math.cos(a1),y:cy-(ry+thickness/2)*Math.sin(a1)},
+               {x:cx+(rx+thickness/2)*Math.cos(a2),y:cy-(ry+thickness/2)*Math.sin(a2)}],
+        inner:[{x:cx+(rx-thickness/2)*Math.cos(a1),y:cy-(ry-thickness/2)*Math.sin(a1)},
+               {x:cx+(rx-thickness/2)*Math.cos(a2),y:cy-(ry-thickness/2)*Math.sin(a2)}],
+        cx:cx+rx*Math.cos((a1+a2)/2), cy:cy-ry*Math.sin((a1+a2)/2)
+      });
+    }
+  }
+  return shapes;
+}
+
+function startArchGame() {
+  const l = getLevel();
+  const as = initArchSlots(l);
+  const shapes = generateArchSlotShapes(l);
+  archState = { slots:as.slots, keystoneIdx:as.keystoneIdx, placed:new Set(), shapes, material:'stone', testPhase:null, testFrames:0, weightY:-30, weightLanded:false, crumbleOffsets:[] };
+  // For double aqueduct, create second arch
+  if (l.archType==='double') {
+    const l2 = {...l, archCx:l.archCx2};
+    const as2 = initArchSlots(l2);
+    const shapes2 = generateArchSlotShapes(l2);
+    archState.slots2 = as2.slots;
+    archState.shapes2 = shapes2;
+    archState.placed2 = new Set();
+    archState.keystoneIdx2 = as2.keystoneIdx;
+  }
+}
+
+function drawArchWorld() {
+  const l = getLevel();
+  const W=canvas.width, H=canvas.height;
+  // Warm stone sky
+  const sg=ctx.createLinearGradient(0,0,0,H);
+  sg.addColorStop(0,'#FFE0B2'); sg.addColorStop(1,'#FFF3E0');
+  ctx.fillStyle=sg; ctx.fillRect(0,0,W,H);
+  drawClouds(W);
+
+  // Water below
+  ctx.fillStyle='#29B6F6';
+  ctx.fillRect(0,l.archCy+10,W,H-l.archCy-10);
+  ctx.strokeStyle='rgba(255,255,255,0.3)'; ctx.lineWidth=1.5;
+  const wt=Date.now()*0.003;
+  ctx.beginPath();
+  for (let px=0;px<W;px+=3) ctx.lineTo(px,l.archCy+18+Math.sin(wt+px*0.06)*2);
+  ctx.stroke();
+
+  // Draw pillars
+  const drawPillar = (px,py,pw,ph) => {
+    ctx.fillStyle='#8D6E63';
+    ctx.fillRect(px-pw/2,py,pw,ph);
+    ctx.strokeStyle='#5D4037'; ctx.lineWidth=2;
+    ctx.strokeRect(px-pw/2,py,pw,ph);
+    // Stone lines
+    for (let row=0;row<Math.floor(ph/15);row++) {
+      const ry2=py+row*15;
+      ctx.beginPath(); ctx.moveTo(px-pw/2,ry2); ctx.lineTo(px+pw/2,ry2); ctx.strokeStyle='#6D4C41'; ctx.lineWidth=1; ctx.stroke();
+      if (row%2===0) { ctx.beginPath(); ctx.moveTo(px,ry2); ctx.lineTo(px,ry2+15); ctx.stroke(); }
+      else { ctx.beginPath(); ctx.moveTo(px-pw/4,ry2); ctx.lineTo(px-pw/4,ry2+15); ctx.stroke(); ctx.beginPath(); ctx.moveTo(px+pw/4,ry2); ctx.lineTo(px+pw/4,ry2+15); ctx.stroke(); }
+    }
+  };
+  // Left and right pillars
+  const pillarTop = l.archCy;
+  drawPillar(l.archCx-l.archRx, pillarTop, l.archPillarW, l.archPillarH);
+  drawPillar(l.archCx+l.archRx, pillarTop, l.archPillarW, l.archPillarH);
+  if (l.archType==='double') {
+    drawPillar(l.archCx2-l.archRx, pillarTop, l.archPillarW, l.archPillarH);
+    drawPillar(l.archCx2+l.archRx, pillarTop, l.archPillarW, l.archPillarH);
+  }
+
+  // Draw ghost slots and placed stones
+  if (archState) {
+    const drawArchStones = (shapes, slots, placed, keystoneIdx) => {
+      for (let i=0;i<shapes.length;i++) {
+        const sh = shapes[i];
+        const isPlaced = placed.has(i);
+        const isKeystone = (i===keystoneIdx);
+        const isCrumbling = archState.testPhase==='crumble' && !isPlaced;
+
+        ctx.beginPath();
+        ctx.moveTo(sh.outer[0].x,sh.outer[0].y);
+        ctx.lineTo(sh.outer[1].x,sh.outer[1].y);
+        ctx.lineTo(sh.inner[1].x,sh.inner[1].y);
+        ctx.lineTo(sh.inner[0].x,sh.inner[0].y);
+        ctx.closePath();
+
+        if (isPlaced) {
+          const off = (archState.testPhase==='crumble' && archState.crumbleOffsets[i]) || {x:0,y:0,r:0};
+          ctx.save();
+          ctx.translate(sh.cx+off.x, sh.cy+off.y);
+          ctx.rotate(off.r);
+          ctx.translate(-(sh.cx+off.x), -(sh.cy+off.y));
+          ctx.beginPath();
+          ctx.moveTo(sh.outer[0].x+off.x,sh.outer[0].y+off.y);
+          ctx.lineTo(sh.outer[1].x+off.x,sh.outer[1].y+off.y);
+          ctx.lineTo(sh.inner[1].x+off.x,sh.inner[1].y+off.y);
+          ctx.lineTo(sh.inner[0].x+off.x,sh.inner[0].y+off.y);
+          ctx.closePath();
+          if (isKeystone) {
+            ctx.fillStyle = archState.material==='marble'?'#CFD8DC':'#D4A574';
+            ctx.strokeStyle = '#FFD600'; ctx.lineWidth=3;
+          } else {
+            ctx.fillStyle = archState.material==='marble'?'#B0BEC5':'#A1887F';
+            ctx.strokeStyle = '#5D4037'; ctx.lineWidth=2;
+          }
+          ctx.fill(); ctx.stroke();
+          // Stone texture lines
+          ctx.strokeStyle='rgba(0,0,0,0.08)'; ctx.lineWidth=1;
+          ctx.beginPath(); ctx.moveTo(sh.cx+off.x-5,sh.cy+off.y-3); ctx.lineTo(sh.cx+off.x+5,sh.cy+off.y+3); ctx.stroke();
+          ctx.restore();
+        } else {
+          // Ghost slot
+          ctx.fillStyle = isKeystone ? 'rgba(255,214,0,0.15)' : 'rgba(141,110,99,0.12)';
+          ctx.fill();
+          ctx.strokeStyle = isKeystone ? 'rgba(255,214,0,0.5)' : 'rgba(141,110,99,0.3)';
+          ctx.lineWidth=2; ctx.setLineDash([6,4]); ctx.stroke(); ctx.setLineDash([]);
+          // Label
+          ctx.fillStyle = isKeystone ? '#FFD600' : '#8D6E63';
+          ctx.font = isKeystone ? 'bold 11px sans-serif' : '10px sans-serif';
+          ctx.textAlign='center'; ctx.textBaseline='middle';
+          ctx.fillText(isKeystone?'★ KEY':'tap',sh.cx,sh.cy);
+        }
+      }
+    };
+    drawArchStones(archState.shapes, archState.slots, archState.placed, archState.keystoneIdx);
+    if (l.archType==='double' && archState.shapes2) {
+      drawArchStones(archState.shapes2, archState.slots2, archState.placed2, archState.keystoneIdx2);
+    }
+
+    // Draw guide curve (faint)
+    ctx.strokeStyle='rgba(141,110,99,0.15)'; ctx.lineWidth=1; ctx.setLineDash([4,6]);
+    if (l.archType==='gothic') {
+      // Draw the two arcs of a gothic arch
+      ctx.beginPath();
+      const half=Math.floor(l.archSlots/2);
+      for (let i=0;i<=40;i++) {
+        const t=i/40;
+        let x,y;
+        if (t<=0.5) { const a=Math.PI*(1-t); x=l.archCx-l.archRx*0.35+(l.archRx*0.5)*Math.cos(a)*0.7; y=l.archCy-l.archRy*Math.sin(a)*1.1; }
+        else { const a=Math.PI*(0.5+(t-0.5)); x=l.archCx+l.archRx*0.35+(l.archRx*0.5)*Math.cos(a)*0.7; y=l.archCy-l.archRy*Math.sin(Math.PI-a)*1.1; }
+        if(i===0)ctx.moveTo(x,y);else ctx.lineTo(x,y);
+      }
+      ctx.stroke();
+    } else {
+      ctx.beginPath();
+      ctx.ellipse(l.archCx,l.archCy,l.archRx,l.archRy,0,Math.PI,0);
+      ctx.stroke();
+      if (l.archType==='double') { ctx.beginPath(); ctx.ellipse(l.archCx2,l.archCy,l.archRx,l.archRy,0,Math.PI,0); ctx.stroke(); }
+    }
+    ctx.setLineDash([]);
+
+    // Weight during test
+    if (archState.testPhase) {
+      const wx = l.archType==='double' ? (l.archCx+l.archCx2)/2 : l.archCx;
+      const wy = archState.weightY;
+      ctx.fillStyle='#455A64';
+      ctx.beginPath();
+      ctx.moveTo(wx-20,wy); ctx.lineTo(wx+20,wy); ctx.lineTo(wx+15,wy+25); ctx.lineTo(wx-15,wy+25); ctx.closePath();
+      ctx.fill(); ctx.strokeStyle='#263238'; ctx.lineWidth=2; ctx.stroke();
+      ctx.fillStyle='#fff'; ctx.font='bold 12px sans-serif'; ctx.textAlign='center'; ctx.textBaseline='middle';
+      ctx.fillText('⬇️',wx,wy+12);
+    }
+  }
+}
+
+function handleArchTap(pt) {
+  if (!archState || archState.testPhase) return;
+  const l = getLevel();
+  // Check which slot was tapped
+  const tryPlace = (shapes, placed) => {
+    for (let i=0;i<shapes.length;i++) {
+      if (placed.has(i)) continue;
+      const sh = shapes[i];
+      const d = Math.hypot(pt.x-sh.cx, pt.y-sh.cy);
+      if (d < 35) {
+        placed.add(i);
+        sfx.play('place');
+        return true;
+      }
+    }
+    return false;
+  };
+  if (tryPlace(archState.shapes, archState.placed)) { updateArchUI(); drawGame(); return; }
+  if (l.archType==='double' && archState.shapes2) {
+    if (tryPlace(archState.shapes2, archState.placed2)) { updateArchUI(); drawGame(); return; }
+  }
+}
+
+function handleArchRemove(pt) {
+  if (!archState || archState.testPhase) return;
+  const l = getLevel();
+  const tryRemove = (shapes, placed) => {
+    for (let i=0;i<shapes.length;i++) {
+      if (!placed.has(i)) continue;
+      const sh = shapes[i];
+      if (Math.hypot(pt.x-sh.cx, pt.y-sh.cy) < 35) {
+        placed.delete(i);
+        sfx.play('remove');
+        return true;
+      }
+    }
+    return false;
+  };
+  if (tryRemove(archState.shapes, archState.placed)) { updateArchUI(); drawGame(); return; }
+  if (l.archType==='double' && archState.shapes2) {
+    if (tryRemove(archState.shapes2, archState.placed2)) { updateArchUI(); drawGame(); return; }
+  }
+}
+
+function updateArchUI() {
+  const l = getLevel();
+  let total = archState.placed.size;
+  let max = archState.shapes.length;
+  if (l.archType==='double') { total += archState.placed2.size; max += archState.shapes2.length; }
+  document.getElementById('gameMeta').textContent = `Stones: ${total} / ${max} | Par: ${l.par}`;
+  document.getElementById('testBtn').disabled = total===0;
+}
+
+function startArchTest() {
+  const l = getLevel();
+  buddy.say('testing'); buddy.stop();
+  isTesting = true;
+  document.getElementById('helpOverlay').style.display='none';
+  document.getElementById('hintBanner').classList.remove('active');
+  document.getElementById('bottomBar').style.display='none';
+  document.getElementById('testingBar').style.display='block';
+  document.getElementById('clearBtn').disabled=true;
+  document.getElementById('failureOverlay').classList.remove('active');
+
+  const totalPlaced = archState.placed.size + (l.archType==='double' ? archState.placed2.size : 0);
+  const totalSlots = archState.shapes.length + (l.archType==='double' ? archState.shapes2.length : 0);
+  const isComplete = totalPlaced === totalSlots;
+  // Check if keystone(s) placed
+  const keystonePlaced = archState.placed.has(archState.keystoneIdx) &&
+    (l.archType!=='double' || archState.placed2.has(archState.keystoneIdx2));
+
+  archState.testPhase = 'drop';
+  archState.testFrames = 0;
+  const topY = l.archCy - l.archRy - 60;
+  archState.weightY = topY - 80;
+  archState.weightLanded = false;
+  archState.crumbleOffsets = [];
+  for (let i=0;i<totalSlots;i++) archState.crumbleOffsets.push({x:0,y:0,r:0,vy:0,vx:0,vr:0});
+
+  function loop() {
+    archState.testFrames++;
+    const progress = Math.min(1, archState.testFrames/180);
+    document.getElementById('progressFill').style.width = (progress*100)+'%';
+
+    if (archState.testPhase==='drop') {
+      archState.weightY += 2.5;
+      const landY = l.archCy - l.archRy*0.85;
+      if (archState.weightY >= landY) {
+        archState.weightY = landY;
+        archState.weightLanded = true;
+        if (isComplete && keystonePlaced) {
+          archState.testPhase = 'hold';
+          archState.testFrames = 0;
+        } else {
+          archState.testPhase = 'crumble';
+          archState.testFrames = 0;
+          // Initialize crumble velocities for unplaced or weak spots
+          for (let i=0;i<archState.shapes.length;i++) {
+            if (!archState.placed.has(i)) {
+              // Neighbors fall too
+              for (let j=Math.max(0,i-1);j<=Math.min(archState.shapes.length-1,i+1);j++) {
+                archState.crumbleOffsets[j].vy = Math.random()*1.5;
+                archState.crumbleOffsets[j].vx = (Math.random()-0.5)*2;
+                archState.crumbleOffsets[j].vr = (Math.random()-0.5)*0.05;
+              }
+            }
+          }
+          if (!keystonePlaced) {
+            // Without keystone, everything near the top crumbles
+            const ki = archState.keystoneIdx;
+            for (let j=Math.max(0,ki-2);j<=Math.min(archState.shapes.length-1,ki+2);j++) {
+              archState.crumbleOffsets[j].vy = Math.random()*2;
+              archState.crumbleOffsets[j].vx = (Math.random()-0.5)*3;
+              archState.crumbleOffsets[j].vr = (Math.random()-0.5)*0.08;
+            }
+          }
+        }
+      }
+    } else if (archState.testPhase==='hold') {
+      // Arch holding! Show success after hold period
+      if (archState.testFrames >= 120) {
+        isTesting = false;
+        archState.testPhase = null;
+        const stars = totalPlaced<=l.par?3:totalPlaced<=l.par+3?2:1;
+        const sk = starKey(currentWorld,currentLevel);
+        earnedStars[sk] = Math.max(earnedStars[sk]||0, stars);
+        saveProgress();
+        showResult(true, stars);
+        return;
+      }
+    } else if (archState.testPhase==='crumble') {
+      // Animate crumbling
+      for (let i=0;i<archState.crumbleOffsets.length;i++) {
+        const o = archState.crumbleOffsets[i];
+        o.vy += 0.3; // gravity
+        o.x += o.vx; o.y += o.vy; o.r += o.vr;
+      }
+      if (archState.testFrames >= 100) {
+        isTesting = false;
+        archState.testPhase = null;
+        // Failure analysis
+        let cause, hint;
+        if (!keystonePlaced) {
+          cause = "The keystone is missing — nothing locks the arch together!";
+          hint = "The keystone (★) at the top is the most important stone. It wedges between the two sides and locks everything in place!";
+        } else if (totalPlaced < totalSlots) {
+          const missing = totalSlots - totalPlaced;
+          cause = `${missing} stone${missing>1?'s are':' is'} missing — the arch has gaps!`;
+          hint = "Every stone in an arch depends on its neighbors. A missing stone means the weight can't flow through the curve to the supports!";
+        } else {
+          cause = "The structure couldn't handle the weight!";
+          hint = "Make sure all stones are placed and the keystone is in position!";
+        }
+        failureData = { cause, hint, breakPoints:[] };
+        const hk = starKey(currentWorld,currentLevel);
+        lastHint[hk] = hint;
+        levelAttempts[hk] = (levelAttempts[hk]||0)+1;
+        saveProgress();
+        sfx.play('fail');
+        document.getElementById('failureCause').textContent = cause;
+        document.getElementById('failureHint').textContent = hint;
+        document.getElementById('failureOverlay').classList.add('active');
+        return;
+      }
+    }
+    drawGame();
+    animId=requestAnimationFrame(loop);
+  }
+  animId=requestAnimationFrame(loop);
+}
+
 // ── RESULT ──
 function showResult(success, stars) {
   if (animId) cancelAnimationFrame(animId);
@@ -1607,7 +2065,7 @@ function showResult(success, stars) {
 
   // What-If panel
   const wifPanel = document.getElementById('whatIfPanel');
-  if (success && w.testType !== 'circuit') {
+  if (success && w.testType !== 'circuit' && w.testType !== 'arch') {
     wifPanel.style.display = 'block';
     document.getElementById('wifGravity').value = 100;
     document.getElementById('wifWeight').value = 100;
@@ -1664,8 +2122,8 @@ function showResult(success, stars) {
 let coopState = null; // { turn:1|2, beamsP1:0, beamsP2:0 }
 
 function startCoOp() {
-  // Pick a random level
-  const worldIdx = Math.floor(Math.random() * 3);
+  // Pick a random level (bridges or towers, not arches)
+  const worldIdx = Math.floor(Math.random() * 2);
   const levelIdx = Math.floor(Math.random() * Math.min(3, WORLD_DATA[worldIdx].levels.length));
   currentWorld = worldIdx;
   currentLevel = levelIdx;
@@ -1895,7 +2353,7 @@ function getDailySeed() {
 function startDailyChallenge() {
   const seed = getDailySeed();
   const rng = seededRandom(seed);
-  const worldIdx = Math.floor(rng() * 3); // bridges, towers, arches (not circuits for daily)
+  const worldIdx = Math.floor(rng() * 2); // bridges, towers (not arches/circuits for daily)
   const w = WORLD_DATA[worldIdx];
 
   // Pick a random existing level as template and modify it
@@ -1938,7 +2396,7 @@ const buddy = {
     start: ["Let's build something awesome!", "Ready to engineer?", "I believe in you!", "Time to construct!"],
     fewBeams: ["Good start! Keep connecting dots!", "Nice! Try adding more beams.", "You're getting the hang of it!"],
     triangles: ["Try adding diagonal beams for triangles!", "Triangles are super strong!", "A diagonal here would help!"],
-    arches: ["Build angled beams from each side to meet in the middle!", "The weight should push outward to the strong supports!", "Connect both sides at the top — that's where it all locks together!"],
+    arches: ["Tap the ghost stones to place them!", "Don't forget the keystone — it locks everything!", "Each stone leans on the next — fill every gap!"],
     towers: ["Build wide at the bottom for stability!", "Add X-bracing to stop it swaying!", "A wider base makes a stronger tower!"],
     manyBeams: ["Looking solid! Ready to test?", "Great structure! Let's see if it holds!", "That's some fine engineering!"],
     testing: ["Here we go... 🤞", "Fingers crossed!", "Let's see how it holds!"],
@@ -1959,7 +2417,7 @@ const buddy = {
     if (beamCount === 0) this.say('start');
     else if (w.testType === 'circuit') this.say('circuit');
     else if (beamCount < 3) this.say('fewBeams');
-    else if (w.id === 'arches' && beamCount < 6) this.say('arches');
+    else if (w.id === 'arches') { if (archState && archState.placed.size < archState.shapes.length/2) this.say('arches'); }
     else if (w.id === 'towers' && beamCount < 6) this.say('towers');
     else if (beamCount < 6) this.say('triangles');
     else this.say('manyBeams');
