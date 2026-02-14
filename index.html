@@ -1179,21 +1179,54 @@ function analyzeFailure() {
   if (w.testType==='circuit') {
     cause = "Not all bulbs are connected to a battery!";
     hint = "Make sure every bulb has a wire path leading back to a battery.";
-  } else if (fewBeams) {
-    cause = "Not enough beams to support the load!";
-    hint = "Add more beams — try connecting every nearby pair of dots for extra strength.";
-  } else if (!hasTriangles && allBeams >= 4) {
-    cause = "Your structure has rectangular shapes that bend easily under stress!";
-    hint = "Add diagonal beams to form triangles — triangles are the strongest shape in engineering!";
-  } else if (allFirstMat && matKeys.length>1 && currentLevel>=2) {
-    cause = `${w.materials[matKeys[0]].name} wasn't strong enough for this heavy load!`;
-    hint = `Try using ${w.materials[matKeys[1]].name} beams in the ${area} where stress is highest.`;
-  } else if (broken.length > allBeams*0.5) {
-    cause = "Too many beams failed at once — the structure needs better support distribution!";
-    hint = `Strengthen the ${area} with more cross-bracing and triangles.`;
+  } else if (w.id==='arches') {
+    // Arch-specific hints — no triangle advice!
+    if (fewBeams) {
+      cause = "Not enough beams to form a proper arch shape!";
+      hint = "An arch needs a curved path of beams from one support to the other. Add more beams to complete the curve!";
+    } else if (allFirstMat && matKeys.length>1 && currentLevel>=2) {
+      cause = `${w.materials[matKeys[0]].name} wasn't strong enough for this heavy load!`;
+      hint = `Try using ${w.materials[matKeys[1]].name} in the ${area} — especially at the top of your arch where the weight pushes hardest.`;
+    } else if (broken.length > allBeams*0.5) {
+      cause = "The arch shape collapsed — the curve wasn't spreading the weight to the supports!";
+      hint = `Make sure your beams form a smooth curve upward over the gap. The top of the arch (keystone area) must be well connected to both sides.`;
+    } else {
+      cause = `The ${area} of your arch couldn't handle the stress!`;
+      hint = `Strengthen the ${area}. An arch works by pushing weight outward — make sure both sides connect firmly to the supports.`;
+    }
+  } else if (w.id==='towers') {
+    // Tower-specific hints
+    if (fewBeams) {
+      cause = "Not enough beams to reach the target height!";
+      hint = "Build upward from the ground! Connect dots vertically and add cross-bracing (X shapes) to keep it stable.";
+    } else if (!hasTriangles && allBeams >= 4) {
+      cause = "Your tower is wobbling — it needs cross-bracing!";
+      hint = "Add diagonal beams between the vertical ones to make X shapes. This stops the tower from swaying side to side!";
+    } else if (allFirstMat && matKeys.length>1 && currentLevel>=2) {
+      cause = `${w.materials[matKeys[0]].name} wasn't strong enough at the base!`;
+      hint = `Use ${w.materials[matKeys[1]].name} for the lower beams — the base carries the most weight.`;
+    } else {
+      cause = `The ${area} of your tower gave way!`;
+      hint = `Make the base wider and add cross-bracing (X shapes) to the ${area}. A wider base means a stronger tower!`;
+    }
   } else {
-    cause = `The ${area} couldn't handle the stress and collapsed!`;
-    hint = `Add more support to the ${area}. Try diagonal beams or stronger materials there.`;
+    // Bridge-specific hints (default)
+    if (fewBeams) {
+      cause = "Not enough beams to support the load!";
+      hint = "Add more beams — try connecting every nearby pair of dots for extra strength.";
+    } else if (!hasTriangles && allBeams >= 4) {
+      cause = "Your bridge has rectangular shapes that bend easily under stress!";
+      hint = "Add diagonal beams to form triangles — triangles are the strongest shape in bridge building!";
+    } else if (allFirstMat && matKeys.length>1 && currentLevel>=2) {
+      cause = `${w.materials[matKeys[0]].name} wasn't strong enough for this heavy load!`;
+      hint = `Try using ${w.materials[matKeys[1]].name} beams in the ${area} where stress is highest.`;
+    } else if (broken.length > allBeams*0.5) {
+      cause = "Too many beams failed at once — the bridge needs better support!";
+      hint = `Strengthen the ${area} with more triangles and connect beams to the supports on each side.`;
+    } else {
+      cause = `The ${area} couldn't handle the stress and collapsed!`;
+      hint = `Add more support to the ${area}. Try diagonal beams or stronger materials there.`;
+    }
   }
 
   return { cause, hint, breakPoints };
@@ -1872,6 +1905,8 @@ const buddy = {
     start: ["Let's build something awesome!", "Ready to engineer?", "I believe in you!", "Time to construct!"],
     fewBeams: ["Good start! Keep connecting dots!", "Nice! Try adding more beams.", "You're getting the hang of it!"],
     triangles: ["Try adding diagonal beams for triangles!", "Triangles are super strong!", "A diagonal here would help!"],
+    arches: ["Curve your beams up and over the gap!", "An arch pushes weight outward to the sides!", "Connect a smooth curve between the supports!"],
+    towers: ["Build wide at the bottom for stability!", "Add X-bracing to stop it swaying!", "A wider base makes a stronger tower!"],
     manyBeams: ["Looking solid! Ready to test?", "Great structure! Let's see if it holds!", "That's some fine engineering!"],
     testing: ["Here we go... 🤞", "Fingers crossed!", "Let's see how it holds!"],
     break: ["Oops! That beam snapped!", "Don't worry, we can fix this!", "Try reinforcing that spot!"],
@@ -1891,6 +1926,8 @@ const buddy = {
     if (beamCount === 0) this.say('start');
     else if (w.testType === 'circuit') this.say('circuit');
     else if (beamCount < 3) this.say('fewBeams');
+    else if (w.id === 'arches' && beamCount < 6) this.say('arches');
+    else if (w.id === 'towers' && beamCount < 6) this.say('towers');
     else if (beamCount < 6) this.say('triangles');
     else this.say('manyBeams');
   },
