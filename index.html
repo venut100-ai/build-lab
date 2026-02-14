@@ -308,6 +308,7 @@
         <div class="meta" id="gameMeta"></div>
       </div>
       <div style="display:flex;gap:5px">
+        <button class="btn btn-sm btn-orange" id="rotateBtn" onclick="rotateSelected()" style="padding:6px 10px;display:none" title="Rotate beam 45°">🔄</button>
         <button class="btn btn-sm btn-purple" onclick="toggleHelp()" style="padding:6px 10px">❓</button>
         <button class="btn btn-sm btn-red" id="clearBtn" onclick="clearBeams()" style="padding:6px 12px">Clear</button>
       </div>
@@ -873,24 +874,62 @@ function exitGame() {
   showScreen('levels');
 }
 
-// ── CANVAS INPUT ──
+// ── CANVAS INPUT (unified drag/tap/rotate system) ──
+let dragState = null; // { type:'arch'|'beam'|'node', idx, startPt, originShapes, moved }
+
 (function() {
   let lastTap = 0;
   document.addEventListener('DOMContentLoaded', () => {
     const c = document.getElementById('gameCanvas');
+
     c.addEventListener('pointerdown', (e) => {
       if (isTesting || failurePhase) return;
       e.preventDefault();
       const pt = canvasPoint(e);
       if (!pt) return;
-      // Arch mode input (including castle arch levels)
+      dragState = null;
+
+      // ── ARCH MODE: check if tapping a placed stone (to drag) or empty slot (to place) ──
       if (archState && !archState.testPhase) {
+        // Try to grab an already-placed stone for dragging
+        const grabPlaced = (shapes, placed, prePlaced, keystoneIdx) => {
+          const hit = archHitTest(pt, shapes, placed, false); // find placed stone
+          if (hit >= 0 && !(prePlaced && prePlaced.has(hit))) {
+            return hit;
+          }
+          return -1;
+        };
+        let grabbed = grabPlaced(archState.shapes, archState.placed, archState.prePlaced, archState.keystoneIdx);
+        if (grabbed >= 0) {
+          dragState = { type:'arch', idx:grabbed, archSet:1, startPt:{...pt}, moved:false, startTime:Date.now() };
+          return;
+        }
+        if (getLevel().archType==='double' && archState.shapes2) {
+          grabbed = grabPlaced(archState.shapes2, archState.placed2, archState.prePlaced2, archState.keystoneIdx2);
+          if (grabbed >= 0) {
+            dragState = { type:'arch', idx:grabbed, archSet:2, startPt:{...pt}, moved:false, startTime:Date.now() };
+            return;
+          }
+        }
+        // Not grabbing a placed stone — try placing in empty slot
         const now = Date.now();
         if (now - lastTap < 350) { handleArchRemove(pt); lastTap=0; return; }
         lastTap = now;
         handleArchTap(pt);
         return;
       }
+
+      // ── BEAM MODE: check if grabbing an existing beam to drag it ──
+      const beamHit = findBeamAt(pt);
+      if (beamHit >= 0) {
+        dragState = { type:'beam', idx:beamHit, startPt:{...pt}, moved:false, startTime:Date.now(),
+          origA:{x:gameBeams[beamHit].a.x, y:gameBeams[beamHit].a.y, gx:gameBeams[beamHit].a.gx, gy:gameBeams[beamHit].a.gy},
+          origB:{x:gameBeams[beamHit].b.x, y:gameBeams[beamHit].b.y, gx:gameBeams[beamHit].b.gx, gy:gameBeams[beamHit].b.gy}
+        };
+        return;
+      }
+
+      // ── Standard tap: select/connect nodes ──
       const now = Date.now();
       if (now - lastTap < 350) { removeBeamAt(pt); lastTap=0; return; }
       lastTap = now;
@@ -899,7 +938,7 @@ function exitGame() {
         const d = Math.hypot(n.x-pt.x, n.y-pt.y);
         if (d<closestDist) { closestDist=d; closest=n; }
       }
-      if (!closest) { selectedNode=null; drawGame(); return; }
+      if (!closest) { selectedNode=null; selectedBeamIdx=-1; showRotateBtn(false); drawGame(); return; }
       if (!selectedNode) { selectedNode=closest; }
       else if (closest===selectedNode) { selectedNode=null; }
       else {
@@ -923,8 +962,190 @@ function exitGame() {
       }
       updateGameUI(); drawGame();
     });
+
+    // ── POINTER MOVE: handle dragging ──
+    c.addEventListener('pointermove', (e) => {
+      if (!dragState || isTesting || failurePhase) return;
+      e.preventDefault();
+      const pt = canvasPoint(e);
+      if (!pt) return;
+      const dx = pt.x - dragState.startPt.x;
+      const dy = pt.y - dragState.startPt.y;
+      if (Math.hypot(dx,dy) > 8) dragState.moved = true;
+      if (!dragState.moved) return;
+
+      if (dragState.type === 'arch') {
+        // Show drag ghost — highlight nearest empty slot
+        const shapes = dragState.archSet===1 ? archState.shapes : archState.shapes2;
+        const placed = dragState.archSet===1 ? archState.placed : archState.placed2;
+        dragState.dragPt = pt;
+        dragState.nearestEmpty = -1;
+        let bestD = 60;
+        for (let i=0; i<shapes.length; i++) {
+          if (placed.has(i) && i !== dragState.idx) continue; // skip other placed stones
+          if (i === dragState.idx) continue; // skip self
+          const d = Math.hypot(pt.x - shapes[i].cx, pt.y - shapes[i].cy);
+          if (d < bestD) { bestD = d; dragState.nearestEmpty = i; }
+        }
+        drawGame();
+      } else if (dragState.type === 'beam') {
+        // Move beam: find new pair of nodes closest to beam's shifted position
+        dragState.dragPt = pt;
+        drawGame();
+      }
+    });
+
+    // ── POINTER UP: finalize drag or treat as tap ──
+    c.addEventListener('pointerup', (e) => {
+      if (!dragState) return;
+      const pt = canvasPoint(e);
+
+      if (dragState.type === 'arch' && dragState.moved) {
+        // Finalize arch stone drag: move stone from old slot to nearest empty slot
+        const placed = dragState.archSet===1 ? archState.placed : archState.placed2;
+        const prePlaced = dragState.archSet===1 ? archState.prePlaced : archState.prePlaced2;
+        if (dragState.nearestEmpty >= 0 && !(prePlaced && prePlaced.has(dragState.nearestEmpty))) {
+          placed.delete(dragState.idx);
+          placed.add(dragState.nearestEmpty);
+          sfx.play('place');
+          updateArchUI();
+        }
+      } else if (dragState.type === 'beam' && dragState.moved && pt) {
+        // Finalize beam drag: snap to new node pair
+        const dx = pt.x - dragState.startPt.x;
+        const dy = pt.y - dragState.startPt.y;
+        const beam = gameBeams[dragState.idx];
+        // Find closest node to shifted A position
+        const newAx = dragState.origA.x + dx, newAy = dragState.origA.y + dy;
+        const newBx = dragState.origB.x + dx, newBy = dragState.origB.y + dy;
+        let bestA=null, bestAdist=50;
+        let bestB=null, bestBdist=50;
+        for (const n of gameNodes) {
+          const dA = Math.hypot(n.x-newAx, n.y-newAy);
+          const dB = Math.hypot(n.x-newBx, n.y-newBy);
+          if (dA < bestAdist) { bestAdist=dA; bestA=n; }
+          if (dB < bestBdist) { bestBdist=dB; bestB=n; }
+        }
+        if (bestA && bestB && bestA !== bestB) {
+          const gdx2 = Math.abs(bestA.gx-bestB.gx), gdy2 = Math.abs(bestA.gy-bestB.gy);
+          if (gdx2<=2 && gdy2<=2 && !(gdx2===0&&gdy2===0)) {
+            const exists = gameBeams.some((b,i)=>i!==dragState.idx&&!b.broken&&((b.a===bestA&&b.b===bestB)||(b.a===bestB&&b.b===bestA)));
+            if (!exists) {
+              beam.a = bestA; beam.b = bestB;
+              const bDx = bestB.x-bestA.x, bDy = bestB.y-bestA.y;
+              beam.restLength = Math.sqrt(bDx*bDx+bDy*bDy);
+              sfx.play('place');
+            }
+          }
+        }
+        updateGameUI();
+      }
+      // If beam was tapped (not dragged), select it for rotation
+      if (dragState && dragState.type==='beam' && !dragState.moved) {
+        selectedBeamIdx = dragState.idx;
+        showRotateBtn(true);
+        selectedNode = null; // deselect any node
+      } else {
+        selectedBeamIdx = -1;
+        showRotateBtn(false);
+      }
+      dragState = null;
+      drawGame();
+    });
+
+    c.addEventListener('pointercancel', () => { dragState = null; drawGame(); });
   });
 })();
+
+// Find beam at point (for drag-grabbing)
+function findBeamAt(pt) {
+  for (let i=gameBeams.length-1; i>=0; i--) {
+    const b = gameBeams[i];
+    if (b.broken) continue;
+    // Distance from point to line segment
+    const dx = b.b.x-b.a.x, dy = b.b.y-b.a.y;
+    const len2 = dx*dx+dy*dy;
+    if (len2 === 0) continue;
+    let t = ((pt.x-b.a.x)*dx + (pt.y-b.a.y)*dy) / len2;
+    t = Math.max(0, Math.min(1, t));
+    const px = b.a.x + t*dx, py = b.a.y + t*dy;
+    const dist = Math.hypot(pt.x-px, pt.y-py);
+    if (dist < 18) return i;
+  }
+  return -1;
+}
+
+// Rotate a selected beam 45° around its midpoint, snapping endpoints to nearest grid nodes
+let selectedBeamIdx = -1;
+
+function rotateSelected() {
+  if (selectedBeamIdx < 0 || selectedBeamIdx >= gameBeams.length) return;
+  const beam = gameBeams[selectedBeamIdx];
+  const midX = (beam.a.x + beam.b.x)/2;
+  const midY = (beam.a.y + beam.b.y)/2;
+  const dx = beam.b.x - beam.a.x;
+  const dy = beam.b.y - beam.a.y;
+  // Rotate 45 degrees
+  const cos45 = Math.cos(Math.PI/4), sin45 = Math.sin(Math.PI/4);
+  const newDx = dx*cos45 - dy*sin45;
+  const newDy = dx*sin45 + dy*cos45;
+  // Find nearest grid nodes to new endpoints
+  const newAx = midX - newDx/2, newAy = midY - newDy/2;
+  const newBx = midX + newDx/2, newBy = midY + newDy/2;
+  let bestA=null, bestAdist=60, bestB=null, bestBdist=60;
+  for (const n of gameNodes) {
+    const dA = Math.hypot(n.x-newAx, n.y-newAy);
+    const dB = Math.hypot(n.x-newBx, n.y-newBy);
+    if (dA<bestAdist) { bestAdist=dA; bestA=n; }
+    if (dB<bestBdist) { bestBdist=dB; bestB=n; }
+  }
+  if (bestA && bestB && bestA !== bestB) {
+    const gdx = Math.abs(bestA.gx-bestB.gx), gdy = Math.abs(bestA.gy-bestB.gy);
+    if (gdx<=2 && gdy<=2 && !(gdx===0&&gdy===0)) {
+      const exists = gameBeams.some((b,i) => i!==selectedBeamIdx && !b.broken &&
+        ((b.a===bestA&&b.b===bestB)||(b.a===bestB&&b.b===bestA)));
+      if (!exists) {
+        beam.a = bestA; beam.b = bestB;
+        const bDx = bestB.x-bestA.x, bDy = bestB.y-bestA.y;
+        beam.restLength = Math.sqrt(bDx*bDx+bDy*bDy);
+        sfx.play('place');
+        updateGameUI(); drawGame();
+        return;
+      }
+    }
+  }
+  // Couldn't snap — try a different rotation (90°)
+  const cos90 = 0, sin90 = 1;
+  const newDx2 = dx*cos90 - dy*sin90;
+  const newDy2 = dx*sin90 + dy*cos90;
+  const newAx2 = midX - newDx2/2, newAy2 = midY - newDy2/2;
+  const newBx2 = midX + newDx2/2, newBy2 = midY + newDy2/2;
+  bestA=null; bestAdist=60; bestB=null; bestBdist=60;
+  for (const n of gameNodes) {
+    const dA = Math.hypot(n.x-newAx2, n.y-newAy2);
+    const dB = Math.hypot(n.x-newBx2, n.y-newBy2);
+    if (dA<bestAdist) { bestAdist=dA; bestA=n; }
+    if (dB<bestBdist) { bestBdist=dB; bestB=n; }
+  }
+  if (bestA && bestB && bestA !== bestB) {
+    const gdx = Math.abs(bestA.gx-bestB.gx), gdy = Math.abs(bestA.gy-bestB.gy);
+    if (gdx<=2 && gdy<=2 && !(gdx===0&&gdy===0)) {
+      const exists = gameBeams.some((b,i) => i!==selectedBeamIdx && !b.broken &&
+        ((b.a===bestA&&b.b===bestB)||(b.a===bestB&&b.b===bestA)));
+      if (!exists) {
+        beam.a = bestA; beam.b = bestB;
+        const bDx = bestB.x-bestA.x, bDy = bestB.y-bestA.y;
+        beam.restLength = Math.sqrt(bDx*bDx+bDy*bDy);
+        sfx.play('place');
+        updateGameUI(); drawGame();
+      }
+    }
+  }
+}
+
+function showRotateBtn(show) {
+  document.getElementById('rotateBtn').style.display = show ? 'inline-block' : 'none';
+}
 
 function canvasPoint(e) {
   if (!canvas) return null;
@@ -1391,6 +1612,43 @@ function drawBeamsAndNodes() {
       ctx.strokeStyle='#FF9800'; ctx.lineWidth=3;
       ctx.setLineDash([5,5]); ctx.stroke(); ctx.setLineDash([]);
     }
+  }
+  // Highlight selected beam (for rotation)
+  if (selectedBeamIdx >= 0 && selectedBeamIdx < gameBeams.length && !isTesting) {
+    const sb = gameBeams[selectedBeamIdx];
+    if (!sb.broken) {
+      ctx.beginPath(); ctx.moveTo(sb.a.x,sb.a.y); ctx.lineTo(sb.b.x,sb.b.y);
+      ctx.strokeStyle='rgba(255,152,0,0.4)'; ctx.lineWidth=16; ctx.lineCap='round'; ctx.stroke();
+      // Rotation hint arrow
+      const mx = (sb.a.x+sb.b.x)/2, my = (sb.a.y+sb.b.y)/2;
+      ctx.fillStyle='#FF9800'; ctx.font='bold 16px sans-serif'; ctx.textAlign='center'; ctx.textBaseline='middle';
+      ctx.fillText('🔄',mx,my-14);
+    }
+  }
+  // Draw beam drag ghost
+  if (dragState && dragState.type==='beam' && dragState.moved && dragState.dragPt) {
+    const beam = gameBeams[dragState.idx];
+    const dx = dragState.dragPt.x - dragState.startPt.x;
+    const dy = dragState.dragPt.y - dragState.startPt.y;
+    const ax = dragState.origA.x+dx, ay = dragState.origA.y+dy;
+    const bx = dragState.origB.x+dx, by = dragState.origB.y+dy;
+    // Ghost beam at dragged position
+    ctx.globalAlpha = 0.4;
+    ctx.beginPath(); ctx.moveTo(ax,ay); ctx.lineTo(bx,by);
+    ctx.strokeStyle='#FF9800'; ctx.lineWidth=8; ctx.lineCap='round'; ctx.stroke();
+    ctx.globalAlpha = 1;
+    // Highlight original beam
+    ctx.beginPath(); ctx.moveTo(beam.a.x,beam.a.y); ctx.lineTo(beam.b.x,beam.b.y);
+    ctx.strokeStyle='rgba(255,152,0,0.3)'; ctx.lineWidth=12; ctx.setLineDash([6,6]); ctx.stroke(); ctx.setLineDash([]);
+    // Snap targets
+    let bestA=null, bestAdist=50, bestB=null, bestBdist=50;
+    for (const n of gameNodes) {
+      const dA = Math.hypot(n.x-ax, n.y-ay), dB = Math.hypot(n.x-bx, n.y-by);
+      if (dA<bestAdist) { bestAdist=dA; bestA=n; }
+      if (dB<bestBdist) { bestBdist=dB; bestB=n; }
+    }
+    if (bestA) { ctx.beginPath(); ctx.arc(bestA.x,bestA.y,12,0,Math.PI*2); ctx.strokeStyle='#FF9800'; ctx.lineWidth=2; ctx.stroke(); }
+    if (bestB) { ctx.beginPath(); ctx.arc(bestB.x,bestB.y,12,0,Math.PI*2); ctx.strokeStyle='#FF9800'; ctx.lineWidth=2; ctx.stroke(); }
   }
 }
 
@@ -2207,6 +2465,40 @@ function drawArchWorld() {
     drawArchStones(archState.shapes, archState.slots, archState.placed, archState.keystoneIdx);
     if (l.archType==='double' && archState.shapes2) {
       drawArchStones(archState.shapes2, archState.slots2, archState.placed2, archState.keystoneIdx2);
+    }
+
+    // Arch drag visualization: highlight dragged stone + target slot
+    if (dragState && dragState.type==='arch' && dragState.moved && dragState.dragPt) {
+      const shapes = dragState.archSet===1 ? archState.shapes : archState.shapes2;
+      const srcSh = shapes[dragState.idx];
+      // Draw dragged stone at finger position
+      const offX = dragState.dragPt.x - srcSh.cx;
+      const offY = dragState.dragPt.y - srcSh.cy;
+      ctx.save(); ctx.globalAlpha=0.6;
+      ctx.beginPath();
+      for (let p=0;p<srcSh.outer.length;p++) {
+        const pt2 = srcSh.outer[p];
+        if(p===0) ctx.moveTo(pt2.x+offX,pt2.y+offY); else ctx.lineTo(pt2.x+offX,pt2.y+offY);
+      }
+      for (let p=srcSh.inner.length-1;p>=0;p--) ctx.lineTo(srcSh.inner[p].x+offX,srcSh.inner[p].y+offY);
+      ctx.closePath();
+      ctx.fillStyle='#FF9800'; ctx.fill();
+      ctx.strokeStyle='#E65100'; ctx.lineWidth=2; ctx.stroke();
+      ctx.restore();
+      // Highlight target slot with green glow
+      if (dragState.nearestEmpty >= 0) {
+        const tgtSh = shapes[dragState.nearestEmpty];
+        ctx.save(); ctx.globalAlpha=0.35;
+        ctx.beginPath();
+        for (let p=0;p<tgtSh.outer.length;p++) {
+          if(p===0) ctx.moveTo(tgtSh.outer[p].x,tgtSh.outer[p].y); else ctx.lineTo(tgtSh.outer[p].x,tgtSh.outer[p].y);
+        }
+        for (let p=tgtSh.inner.length-1;p>=0;p--) ctx.lineTo(tgtSh.inner[p].x,tgtSh.inner[p].y);
+        ctx.closePath();
+        ctx.fillStyle='#4CAF50'; ctx.fill();
+        ctx.strokeStyle='#2E7D32'; ctx.lineWidth=3; ctx.stroke();
+        ctx.restore();
+      }
     }
 
     // Draw guide curve (faint)
