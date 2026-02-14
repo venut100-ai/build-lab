@@ -1978,35 +1978,60 @@ function initArchSlots(l) {
 function generateArchSlotShapes(l) {
   const n = l.archSlots;
   const cx = l.archCx, cy = l.archCy, rx = l.archRx, ry = l.archRy;
-  const thickness = Math.min(rx,ry)*0.32;
+  const outerR = 1.22; // outer radius multiplier (bigger = thicker stones)
+  const innerR = 0.78; // inner radius multiplier
   const shapes = [];
-  // Generate curve points at higher resolution
-  const res = n * 6;
-  const pts = [];
-  for (let i=0;i<=res;i++) {
-    const t = i/res;
-    const ang = Math.PI*(1-t);
-    let x = cx + rx*Math.cos(ang);
-    let y = cy - ry*Math.sin(ang);
+
+  // Helper: get point on arch curve at parameter t (0=left pillar, 1=right pillar)
+  function archPoint(t, radiusMult) {
+    const ang = Math.PI * (1-t);
+    let x = cx + rx * radiusMult * Math.cos(ang);
+    let y = cy - ry * radiusMult * Math.sin(ang);
     if (l.archType === 'gothic') {
       const center = Math.abs(t - 0.5);
-      const lift = (0.5 - center) * ry * 0.5;
+      const lift = (0.5 - center) * ry * radiusMult * 0.5;
       y -= lift;
     }
-    pts.push({x,y});
+    return {x, y};
   }
-  for (let i=0;i<n;i++) {
-    const i1 = Math.round(i * res / n);
-    const i2 = Math.round((i+1) * res / n);
-    const p1 = pts[Math.min(i1,res)], p2 = pts[Math.min(i2,res)];
-    const mx = (p1.x+p2.x)/2, my = (p1.y+p2.y)/2;
-    const dx = p2.x-p1.x, dy = p2.y-p1.y;
-    const len = Math.sqrt(dx*dx+dy*dy)||1;
-    const nx = -dy/len, ny = dx/len;
+
+  // Each voussoir spans from t_i to t_{i+1} with radial edges
+  // Edges between stones are SHARED — no gaps!
+  for (let i=0; i<n; i++) {
+    const t1 = i / n;
+    const t2 = (i+1) / n;
+    const tMid = (t1+t2)/2;
+
+    // Four corners of the voussoir (trapezoid/wedge shape)
+    // outer-left, outer-right, inner-right, inner-left
+    const oL = archPoint(t1, outerR);
+    const oR = archPoint(t2, outerR);
+    const iR = archPoint(t2, innerR);
+    const iL = archPoint(t1, innerR);
+
+    // Add intermediate points along the curves for smoother rendering
+    const outerPts = [oL];
+    const innerPts = [iL];
+    const steps = 4;
+    for (let s=1; s<steps; s++) {
+      const tS = t1 + (t2-t1)*s/steps;
+      outerPts.push(archPoint(tS, outerR));
+      innerPts.push(archPoint(tS, innerR));
+    }
+    outerPts.push(oR);
+    innerPts.push(iR);
+
+    const center = archPoint(tMid, 1.0);
+
     shapes.push({
-      outer:[{x:p1.x+nx*thickness/2,y:p1.y+ny*thickness/2},{x:p2.x+nx*thickness/2,y:p2.y+ny*thickness/2}],
-      inner:[{x:p1.x-nx*thickness/2,y:p1.y-ny*thickness/2},{x:p2.x-nx*thickness/2,y:p2.y-ny*thickness/2}],
-      cx:mx, cy:my
+      outer: outerPts,
+      inner: innerPts,
+      // Keep 2-point versions for hit testing compatibility
+      outerEdge: [oL, oR],
+      innerEdge: [iL, iR],
+      cx: center.x,
+      cy: center.y,
+      t1, t2
     });
   }
   return shapes;
@@ -2078,60 +2103,73 @@ function drawArchWorld() {
   // Draw ghost slots and placed stones
   if (archState) {
     const drawArchStones = (shapes, slots, placed, keystoneIdx) => {
+      // Helper to trace the voussoir polygon (outer forward, inner backward)
+      function traceStone(sh, offX, offY) {
+        ctx.beginPath();
+        for (let p=0; p<sh.outer.length; p++) {
+          const pt = sh.outer[p];
+          if (p===0) ctx.moveTo(pt.x+offX, pt.y+offY);
+          else ctx.lineTo(pt.x+offX, pt.y+offY);
+        }
+        for (let p=sh.inner.length-1; p>=0; p--) {
+          ctx.lineTo(sh.inner[p].x+offX, sh.inner[p].y+offY);
+        }
+        ctx.closePath();
+      }
+
       for (let i=0;i<shapes.length;i++) {
         const sh = shapes[i];
         const isPlaced = placed.has(i);
         const isKeystone = (i===keystoneIdx);
-        const isCrumbling = archState.testPhase==='crumble' && !isPlaced;
-
-        ctx.beginPath();
-        ctx.moveTo(sh.outer[0].x,sh.outer[0].y);
-        ctx.lineTo(sh.outer[1].x,sh.outer[1].y);
-        ctx.lineTo(sh.inner[1].x,sh.inner[1].y);
-        ctx.lineTo(sh.inner[0].x,sh.inner[0].y);
-        ctx.closePath();
 
         if (isPlaced) {
           const off = (archState.testPhase==='crumble' && archState.crumbleOffsets[i]) || {x:0,y:0,r:0};
           ctx.save();
-          ctx.translate(sh.cx+off.x, sh.cy+off.y);
-          ctx.rotate(off.r);
-          ctx.translate(-(sh.cx+off.x), -(sh.cy+off.y));
-          ctx.beginPath();
-          ctx.moveTo(sh.outer[0].x+off.x,sh.outer[0].y+off.y);
-          ctx.lineTo(sh.outer[1].x+off.x,sh.outer[1].y+off.y);
-          ctx.lineTo(sh.inner[1].x+off.x,sh.inner[1].y+off.y);
-          ctx.lineTo(sh.inner[0].x+off.x,sh.inner[0].y+off.y);
-          ctx.closePath();
+          if (off.r) {
+            ctx.translate(sh.cx+off.x, sh.cy+off.y);
+            ctx.rotate(off.r);
+            ctx.translate(-(sh.cx+off.x), -(sh.cy+off.y));
+          }
+          traceStone(sh, off.x, off.y);
           if (isKeystone) {
             ctx.fillStyle = archState.material==='marble'?'#CFD8DC':'#D4A574';
             ctx.strokeStyle = '#FFD600'; ctx.lineWidth=3;
           } else {
             ctx.fillStyle = archState.material==='marble'?'#B0BEC5':'#A1887F';
-            ctx.strokeStyle = '#5D4037'; ctx.lineWidth=2;
+            ctx.strokeStyle = '#5D4037'; ctx.lineWidth=1.5;
           }
           ctx.fill(); ctx.stroke();
-          // Stone texture lines
-          ctx.strokeStyle='rgba(0,0,0,0.08)'; ctx.lineWidth=1;
-          ctx.beginPath(); ctx.moveTo(sh.cx+off.x-5,sh.cy+off.y-3); ctx.lineTo(sh.cx+off.x+5,sh.cy+off.y+3); ctx.stroke();
+          // Stone texture — subtle cracks
+          ctx.strokeStyle='rgba(0,0,0,0.06)'; ctx.lineWidth=0.8;
+          ctx.beginPath();
+          ctx.moveTo(sh.cx+off.x-6,sh.cy+off.y-2);
+          ctx.lineTo(sh.cx+off.x+4,sh.cy+off.y+4);
+          ctx.moveTo(sh.cx+off.x+2,sh.cy+off.y-5);
+          ctx.lineTo(sh.cx+off.x-3,sh.cy+off.y+3);
+          ctx.stroke();
+          // Number label for educational ordering
+          ctx.fillStyle='rgba(0,0,0,0.2)'; ctx.font='bold 9px sans-serif';
+          ctx.textAlign='center'; ctx.textBaseline='middle';
+          ctx.fillText(isKeystone?'★':`${i+1}`,sh.cx+off.x,sh.cy+off.y);
           ctx.restore();
         } else {
-          // Ghost slot — pulsing for keystone, solid outline for others
+          // Ghost slot — wedge-shaped outline showing where stone goes
           const pulse = isKeystone ? 0.2 + Math.sin(Date.now()*0.005)*0.12 : 0;
-          ctx.fillStyle = isKeystone ? `rgba(255,214,0,${0.15+pulse})` : 'rgba(141,110,99,0.15)';
+          traceStone(sh, 0, 0);
+          ctx.fillStyle = isKeystone ? `rgba(255,214,0,${0.15+pulse})` : 'rgba(141,110,99,0.1)';
           ctx.fill();
-          ctx.strokeStyle = isKeystone ? `rgba(255,214,0,${0.6+pulse})` : 'rgba(141,110,99,0.35)';
-          ctx.lineWidth = isKeystone ? 3 : 2;
-          if (!isKeystone) { ctx.setLineDash([6,4]); }
+          ctx.strokeStyle = isKeystone ? `rgba(255,214,0,${0.6+pulse})` : 'rgba(141,110,99,0.3)';
+          ctx.lineWidth = isKeystone ? 3 : 1.5;
+          if (!isKeystone) { ctx.setLineDash([5,4]); }
           ctx.stroke(); ctx.setLineDash([]);
           // Label
-          ctx.fillStyle = isKeystone ? '#FFD600' : 'rgba(141,110,99,0.7)';
+          ctx.fillStyle = isKeystone ? '#FFD600' : 'rgba(141,110,99,0.6)';
           ctx.font = isKeystone ? 'bold 13px sans-serif' : '10px sans-serif';
           ctx.textAlign='center'; ctx.textBaseline='middle';
           ctx.fillText(isKeystone?'★ KEY':'tap',sh.cx,sh.cy);
           // Glow for keystone
           if (isKeystone) {
-            ctx.beginPath(); ctx.arc(sh.cx,sh.cy,28,0,Math.PI*2);
+            ctx.beginPath(); ctx.arc(sh.cx,sh.cy,30,0,Math.PI*2);
             ctx.fillStyle=`rgba(255,214,0,${0.06+pulse*0.3})`; ctx.fill();
           }
         }
@@ -2173,8 +2211,8 @@ function drawArchWorld() {
 }
 
 function pointInVoussoir(pt, sh) {
-  // Check if point is inside the voussoir quadrilateral (outer0, outer1, inner1, inner0)
-  const poly = [sh.outer[0], sh.outer[1], sh.inner[1], sh.inner[0]];
+  // Build polygon from outer points (forward) + inner points (reversed)
+  const poly = [...sh.outer, ...([...sh.inner].reverse())];
   let inside = false;
   for (let i=0,j=poly.length-1; i<poly.length; j=i++) {
     if ((poly[i].y>pt.y)!==(poly[j].y>pt.y) &&
