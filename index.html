@@ -919,7 +919,47 @@ let dragState = null; // { type:'arch'|'beam'|'node', idx, startPt, originShapes
         return;
       }
 
-      // ── BEAM MODE: check if grabbing an existing beam to drag it ──
+      // ── NODE CHECK FIRST: always prioritize node taps over beam drags ──
+      const now = Date.now();
+      if (now - lastTap < 350) { removeBeamAt(pt); lastTap=0; return; }
+      lastTap = now;
+
+      let closest=null, closestDist=35;
+      for (const n of gameNodes) {
+        const d = Math.hypot(n.x-pt.x, n.y-pt.y);
+        if (d<closestDist) { closestDist=d; closest=n; }
+      }
+
+      // If tap is near a node, handle node selection/connection (beam creation)
+      if (closest) {
+        // Clear beam selection when working with nodes
+        selectedBeamIdx=-1; showRotateBtn(false);
+        if (!selectedNode) { selectedNode=closest; }
+        else if (closest===selectedNode) { selectedNode=null; }
+        else {
+          const exists = gameBeams.some(b=>!b.broken&&((b.a===selectedNode&&b.b===closest)||(b.a===closest&&b.b===selectedNode)));
+          if (!exists) {
+            const gdx=Math.abs(closest.gx-selectedNode.gx), gdy=Math.abs(closest.gy-selectedNode.gy);
+            if (gdx<=2 && gdy<=2 && !(gdx===0&&gdy===0)) {
+              const lvl = getLevel();
+              if (lvl.budget) {
+                const cost = (getWorld().materials[material]||{}).cost||1;
+                const spent = gameBeams.reduce((s,b) => s + ((getWorld().materials[b.material]||{}).cost||1), 0);
+                if (spent + cost > lvl.budget) { selectedNode=null; updateGameUI(); drawGame(); return; }
+              }
+              const dx=closest.x-selectedNode.x, dy=closest.y-selectedNode.y;
+              gameBeams.push({ a:selectedNode, b:closest, material, restLength:Math.sqrt(dx*dx+dy*dy), stress:0, broken:false });
+              sfx.play('place');
+              if (coopState) coopAfterBeamPlaced();
+            }
+          }
+          selectedNode=null;
+        }
+        updateGameUI(); drawGame();
+        return;
+      }
+
+      // ── No node nearby: check if grabbing an existing beam to drag it ──
       const beamHit = findBeamAt(pt);
       if (beamHit >= 0) {
         dragState = { type:'beam', idx:beamHit, startPt:{...pt}, moved:false, startTime:Date.now(),
@@ -929,37 +969,8 @@ let dragState = null; // { type:'arch'|'beam'|'node', idx, startPt, originShapes
         return;
       }
 
-      // ── Standard tap: select/connect nodes ──
-      const now = Date.now();
-      if (now - lastTap < 350) { removeBeamAt(pt); lastTap=0; return; }
-      lastTap = now;
-      let closest=null, closestDist=35;
-      for (const n of gameNodes) {
-        const d = Math.hypot(n.x-pt.x, n.y-pt.y);
-        if (d<closestDist) { closestDist=d; closest=n; }
-      }
-      if (!closest) { selectedNode=null; selectedBeamIdx=-1; showRotateBtn(false); drawGame(); return; }
-      if (!selectedNode) { selectedNode=closest; }
-      else if (closest===selectedNode) { selectedNode=null; }
-      else {
-        const exists = gameBeams.some(b=>!b.broken&&((b.a===selectedNode&&b.b===closest)||(b.a===closest&&b.b===selectedNode)));
-        if (!exists) {
-          const gdx=Math.abs(closest.gx-selectedNode.gx), gdy=Math.abs(closest.gy-selectedNode.gy);
-          if (gdx<=2 && gdy<=2 && !(gdx===0&&gdy===0)) {
-            const lvl = getLevel();
-            if (lvl.budget) {
-              const cost = (getWorld().materials[material]||{}).cost||1;
-              const spent = gameBeams.reduce((s,b) => s + ((getWorld().materials[b.material]||{}).cost||1), 0);
-              if (spent + cost > lvl.budget) { selectedNode=null; updateGameUI(); drawGame(); return; }
-            }
-            const dx=closest.x-selectedNode.x, dy=closest.y-selectedNode.y;
-            gameBeams.push({ a:selectedNode, b:closest, material, restLength:Math.sqrt(dx*dx+dy*dy), stress:0, broken:false });
-            sfx.play('place');
-            if (coopState) coopAfterBeamPlaced();
-          }
-        }
-        selectedNode=null;
-      }
+      // Nothing hit — deselect everything
+      selectedNode=null; selectedBeamIdx=-1; showRotateBtn(false);
       updateGameUI(); drawGame();
     });
 
